@@ -164,7 +164,7 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
       <label class="f" style="margin-top:0">Sheet language</label>
       <div class="tabs" role="tablist" aria-label="Sheet language">
         <button role="tab" data-lang="he" aria-selected="true">עברית</button>
-        <button role="tab" data-lang="yi" aria-selected="false">ייִדיש</button>
+        <button role="tab" data-lang="yi" aria-selected="false">אידיש</button>
         <button role="tab" data-lang="en" aria-selected="false" style="font-family:Heebo,sans-serif">English</button>
       </div>
     </div>
@@ -278,7 +278,7 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
       <label class="check"><input type="checkbox" id="bgFree" checked data-rebuild> Free space in the middle (3 × 3 and 5 × 5)</label>
     </div>
 
-    <label class="check hidden" id="marksRow"><input type="checkbox" id="yiMarks" data-rebuild checked> Keep Yiddish letter marks (אַ אָ)</label>
+    <label class="check hidden" id="marksRow"><input type="checkbox" id="yiMarks" data-rebuild checked> Keep Yiddish letter marks (אַ אָ פּ פֿ)</label>
     <hr>
     <label class="check"><input type="checkbox" id="optName" checked> Name line at the top</label>
     <label class="check" id="keyRow"><input type="checkbox" id="optKey"> <span id="keyLabel">Answer key</span> <span class="hint">(its own page)</span></label>
@@ -326,24 +326,24 @@ const LANGS={
       mtTitle:'התאמה',mtInstr:'מתחו קו מכל מילה אל ההגדרה שלה.',
       mtWords:'שבת - היום השביעי בשבוע\nשופר - תוקעים בו בראש השנה\nסוכה - יושבים בה שבעה ימים\nמצה - אוכלים אותה בפסח\nמזוזה - קובעים אותה על פתח הבית\nחנוכה - חג של שמונה ימים',
       bgTitle:'בינגו',bgWords:BINGO_HE}},
-  yi:{dir:'rtl',loc:'yi',name:'נאָמען:',across:'אַריבער',down:'אַראָפ',key:'ענטפערס',start:'אָנהייב',finish:'סוף',free:'פרײַ',caller:'ווערטער צום אויסרופן',
+  yi:{dir:'rtl',loc:'yi',name:'נאָמען:',across:'אַריבער',down:'אַראָפּ',key:'ענטפֿערס',start:'אָנהייב',finish:'סוף',free:'פֿרײַ',caller:'ווערטער צום אויסרופֿן',
     easy:'Right-to-left and down',dotsAlpha:HEB22,
-    alpha:['אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'],
-    order:['א','אַ','אָ','ב','בֿ','ג','ד','ה','ו','וּ','װ','ז','ח','ט','י','יִ','ײ','ײַ','ױ','כּ','כ','ך','ל','מ','ם','נ','ן','ס','ע','פ','ף','צ','ץ','ק','ר','ש','שׂ','תּ','ת'],
-    core:['א','אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'],
-    def:{wsTitle:'זוכט די ווערטער',wsInstr:'געפינט און צייכנט אָן אַלע ווערטער.',
+    alpha:['אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פּ','פֿ','צ','ק','ר','ש','ת'],
+    order:['א','אַ','אָ','ב','בֿ','ג','ד','ה','ו','וּ','װ','ז','ח','ט','י','יִ','ײ','ײַ','ױ','כּ','כ','ך','ל','מ','ם','נ','ן','ס','ע','פּ','פ','פֿ','ף','צ','ץ','ק','ר','ש','שׂ','תּ','ת'],
+    core:['א','אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פּ','פֿ','צ','ק','ר','ש','ת'],
+    def:{wsTitle:'זוכט די ווערטער',wsInstr:'געפֿינט און צייכנט אָן אַלע ווערטער.',
       wsWords:'תורה\nמשנה\nישיבה\nמצוה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
       cwTitle:'קרייצווערטער',cwInstr:'לייזט אויס דאָס קרייצווערטער מיט די אָנווייזונגען.',
-      cwWords:'שבת - דער זיבעטער טאָג פון דער וואָך\nתורה - געגעבן אויפן באַרג סיני\nסוכה - מען זיצט אין איר זיבן טעג\nשופר - מען בלאָזט אים ראָש השנה\nמזוזה - מען קלאַפט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט\nמצה - מען עסט זי פסח\nירושלים - די שטאָט פון בית המקדש',
-      mzTitle:'לאַבירינט',mzInstr:'געפינט דעם וועג פון אָנהייב ביזן סוף.',
-      dtTitle:'פאַרבינדט די פינטלעך',dtInstr:'פאַרבינדט די פינטלעך לויט דער ריי. וואָס קומט אַרויס?',
-      trTitle:'שרײַבט איבער',trInstr:'פירט מיטן בלײַער איבער די אותיות.',trWords:'שלום\nתורה\nשבת\nמאַמע\nטאַטע',
+      cwWords:'שבת - דער זיבעטער טאָג פֿון דער וואָך\nתורה - געגעבן אויפֿן באַרג סיני\nסוכה - מען זיצט אין איר זיבן טעג\nשופֿר - מען בלאָזט אים ראָש השנה\nמזוזה - מען קלאַפּט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט\nמצה - מען עסט זי פּסח\nירושלים - די שטאָט פֿון בית המקדש',
+      mzTitle:'לאַבירינט',mzInstr:'געפֿינט דעם וועג פֿון אָנהייב ביזן סוף.',
+      dtTitle:'פֿאַרבינדט די פּינטלעך',dtInstr:'פֿאַרבינדט די פּינטלעך לויט דער ריי. וואָס קומט אַרויס?',
+      trTitle:'שרײַבט איבער',trInstr:'פֿירט מיטן בלײַער איבער די אותיות.',trWords:'שלום\nתורה\nשבת\nמאַמע\nטאַטע',
       cdTitle:'געהיימער קאָד',cdInstr:'לייענט אויס די געהיימע ידיעה מיט דעם שליסל.',cdWords:'ואהבת לרעך כמוך',
       scTitle:'צעמישטע ווערטער',scInstr:'שטעלט אויס די אותיות און שרײַבט דאָס וואָרט.',
-      scWords:'שבת - דער זיבעטער טאָג\nתורה - געגעבן אויפן באַרג סיני\nסוכה - מען זיצט אין איר סוכּות\nשופר - מען בלאָזט אים ראָש השנה\nמצה - מען עסט זי פסח\nחנוכה - מען צינדט ליכט אַכט טעג',
-      msTitle:'פעלנדיקע אותיות',msInstr:'שרײַבט אַרײַן די פעלנדיקע אותיות.',msWords:'תורה\nמשנה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
-      mtTitle:'צופאַסן',mtInstr:'ציט אַ שטריך פון יעדן וואָרט צו זײַן טײַטש.',
-      mtWords:'שבת - דער זיבעטער טאָג פון דער וואָך\nשופר - מען בלאָזט אים ראָש השנה\nסוכה - מען זיצט אין איר זיבן טעג\nמצה - מען עסט זי פסח\nמזוזה - מען קלאַפט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט',
+      scWords:'שבת - דער זיבעטער טאָג\nתורה - געגעבן אויפֿן באַרג סיני\nסוכה - מען זיצט אין איר סוכּות\nשופֿר - מען בלאָזט אים ראָש השנה\nמצה - מען עסט זי פּסח\nחנוכה - מען צינדט ליכט אַכט טעג',
+      msTitle:'פֿעלנדיקע אותיות',msInstr:'שרײַבט אַרײַן די פֿעלנדיקע אותיות.',msWords:'תורה\nמשנה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
+      mtTitle:'צופּאַסן',mtInstr:'ציט אַ שטריך פֿון יעדן וואָרט צו זײַן טײַטש.',
+      mtWords:'שבת - דער זיבעטער טאָג פֿון דער וואָך\nשופֿר - מען בלאָזט אים ראָש השנה\nסוכה - מען זיצט אין איר זיבן טעג\nמצה - מען עסט זי פּסח\nמזוזה - מען קלאַפּט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט',
       bgTitle:'בינגאָ',bgWords:BINGO_HE}},
   en:{dir:'ltr',loc:'en',name:'Name:',across:'Across',down:'Down',key:'Answer Key',start:'Start',finish:'Finish',free:'FREE',caller:'Caller list',
     easy:'Left-to-right and down',alpha:AZ,dotsAlpha:AZ,order:AZ,core:AZ,
@@ -368,14 +368,13 @@ const SHARED=['wsSize','wsLevel','wsBank','wsUnfinal','cwLen','mzSize','mzStyle'
 const FIELDS=CONTENT.concat(SHARED);
 let type='search',lang='he',perLang={};
 const S={};
-const noPeMarks=s=>lang==='yi'?String(s).replace(/([\u05E4\u05E3])[\u05BC\u05BF]/g,'$1'):String(s);
-const esc=s=>noPeMarks(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rnd=n=>Math.floor(Math.random()*n);
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 const L=()=>LANGS[lang];
 const rtl=()=>L().dir==='rtl';
 
-const YIKEEP={'א':'\u05B7\u05B8','ב':'\u05BF','כ':'\u05BC','ת':'\u05BC','ש':'\u05C2','ו':'\u05BC','י':'\u05B4','ײ':'\u05B7'};
+const YIKEEP={'א':'\u05B7\u05B8','פ':'\u05BC\u05BF','ב':'\u05BF','כ':'\u05BC','ת':'\u05BC','ש':'\u05C2','ו':'\u05BC','י':'\u05B4','ײ':'\u05B7'};
 const yiMarksOn=()=>lang==='yi'&&$('yiMarks').checked;
 function letters(w,unfinal){
   if(lang==='en')return Array.from(w.toUpperCase().replace(/[^A-Z]/g,''));
@@ -412,9 +411,9 @@ const SHAPES={
      {line:[[36,20],[38,31],[43,39],[50,42]]},{line:[[64,20],[62,31],[57,39],[50,42]]},
      {line:[[50,20],[50,88]]},{line:[[34,96],[41,88],[59,88],[66,96],[34,96]]},
      flame(12),flame(24),flame(36),flame(50),flame(64),flame(76),flame(88)]},
- shofar:{n:['שופר','שופר','Shofar'],closed:true,
+ shofar:{n:['שופר','שופֿר','Shofar'],closed:true,
    pts:[[6,56],[20,59],[36,63],[50,62],[63,56],[73,45],[79,32],[82,18],[98,26],[92,40],[86,54],[76,66],[63,75],[48,79],[33,77],[18,71],[6,62]],extra:[]},
- torah:{n:['ספר תורה','ספר תורה','Sefer Torah'],closed:true,
+ torah:{n:['ספר תורה','ספֿר תורה','Sefer Torah'],closed:true,
    pts:[[17,3],[21,3],[21,12],[25,14],[25,20],[75,20],[75,14],[79,12],[79,3],[83,3],[83,12],[87,14],[87,86],[83,88],[83,97],[79,97],[79,88],[75,86],[75,80],[25,80],[25,86],[21,88],[21,97],[17,97],[17,88],[13,86],[13,14],[17,12]],
    extra:[{line:[[25,20],[25,80]]},{line:[[75,20],[75,80]]},{line:[[33,32],[67,32]]},{line:[[33,42],[67,42]]},{line:[[33,52],[67,52]]},{line:[[33,62],[67,62]]}]},
  candle:{n:['נר','ליכט','Candle'],closed:true,
@@ -424,10 +423,10 @@ const SHAPES={
    pts:[[30,12],[70,12],[68,34],[61,47],[54,52],[54,76],[67,83],[70,91],[30,91],[33,83],[46,76],[46,52],[39,47],[32,34]],extra:[{line:[[31,22],[69,22]]},{line:[[46,52],[54,52]]}]},
  dreidel:{n:['סביבון','דריידל','Dreidel'],closed:true,
    pts:[[50,96],[27,72],[27,36],[44,36],[44,12],[56,12],[56,36],[73,36],[73,72]],extra:[{line:[[27,72],[73,72]]}]},
- apple:{n:['תפוח','עפל','Apple'],closed:true,
+ apple:{n:['תפוח','עפּל','Apple'],closed:true,
    pts:[[50,30],[60,23],[72,23],[82,31],[88,45],[87,61],[80,76],[68,88],[58,91],[50,88],[42,91],[32,88],[20,76],[13,61],[12,45],[18,31],[28,23],[40,23]],
    extra:[{line:[[50,30],[51,20],[54,11]]},{line:[[53,17],[62,9],[73,9],[64,17],[53,17]]}]},
- fish:{n:['דג','פיש','Fish'],closed:true,
+ fish:{n:['דג','פֿיש','Fish'],closed:true,
    pts:[[8,50],[17,40],[30,32],[45,28],[58,30],[70,37],[78,45],[92,30],[96,33],[88,50],[96,67],[92,70],[78,55],[70,63],[58,70],[45,72],[30,68],[17,60]],
    extra:[{circle:[23,45,2.2]},{line:[[38,38],[42,50],[38,62]]}]},
  house:{n:['בית','הויז','House'],closed:true,
@@ -696,7 +695,7 @@ function traceRow(text,size,repeat,style,ruled,blank){
   return {src:c.toDataURL('image/png'),h};
 }
 function viewTrace(){
-  const words=lines('trWords').map(noPeMarks);
+  const words=lines('trWords');
   if(!words.length)return emptyOut('Add at least one word to trace.');
   const size=+val('trSize'),rep=+val('trRepeat'),style=val('trStyle'),ruled=$('trLines').checked,prac=$('trPractice').checked;
   const rows=[];
