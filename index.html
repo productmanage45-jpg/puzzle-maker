@@ -197,6 +197,8 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
     <div class="panel" data-type="maze">
       <label class="f" for="mzTitle">Title</label><input type="text" id="mzTitle" dir="auto">
       <label class="f" for="mzInstr">Instructions</label><input type="text" id="mzInstr" dir="auto">
+      <label class="f" for="mzStyle">Shape</label>
+      <select id="mzStyle" data-rebuild><option value="rect">Square</option><option value="round">Round</option><option value="magen">Magen David</option><option value="heart">Heart</option><option value="star">Star</option><option value="apple">Apple</option><option value="fish">Fish</option><option value="house">House</option><option value="dreidel">Dreidel</option></select>
       <label class="f" for="mzSize">Difficulty</label>
       <select id="mzSize" data-rebuild><option value="7">Very easy</option><option value="10" selected>Easy</option><option value="14">Medium</option><option value="19">Hard</option><option value="26">Very hard</option></select>
     </div>
@@ -362,7 +364,7 @@ const LANGS={
 };
 const TYPES=[['search','Word search','ws'],['cross','Crossword','cw'],['maze','Maze','mz'],['dots','Connect the dots','dt'],['trace','Tracing','tr'],['code','Secret code','cd'],['scramble','Word scramble','sc'],['missing','Missing letters','ms'],['match','Matching','mt'],['bingo','Bingo','bg']];
 const CONTENT=[];TYPES.forEach(([,,p])=>['Title','Instr','Words'].forEach(s=>{if(document.getElementById(p+s))CONTENT.push(p+s)}));
-const SHARED=['wsSize','wsLevel','wsBank','wsUnfinal','cwLen','mzSize','dtShape','dtLabel','dtStart','trSize','trRepeat','trStyle','trLines','trPractice','cdMode','cdOnly','msHide','msBank','bgSize','bgCount','bgPer','bgFree','optName','optKey','yiMarks'];
+const SHARED=['wsSize','wsLevel','wsBank','wsUnfinal','cwLen','mzSize','mzStyle','dtShape','dtLabel','dtStart','trSize','trRepeat','trStyle','trLines','trPractice','cdMode','cdOnly','msHide','msBank','bgSize','bgCount','bgPer','bgFree','optName','optKey','yiMarks'];
 const FIELDS=CONTENT.concat(SHARED);
 let type='search',lang='he',perLang={};
 const S={};
@@ -551,44 +553,98 @@ function viewCross(s){
 }
 
 /* ---------- maze ---------- */
-function buildMaze(){
-  const cols=+val('mzSize'),rows=Math.round(cols*1.25),R=rtl();
-  const W=Array.from({length:rows*cols},()=>[1,1,1,1]); /* top right bottom left */
-  const seen=new Uint8Array(rows*cols),stack=[0];seen[0]=1;
-  const D=[[-1,0,0,2],[0,1,1,3],[1,0,2,0],[0,-1,3,1]];
-  while(stack.length){
-    const cur=stack[stack.length-1],r=Math.floor(cur/cols),c=cur%cols;
-    const nb=D.filter(([dr,dc])=>{const rr=r+dr,cc=c+dc;return rr>=0&&rr<rows&&cc>=0&&cc<cols&&!seen[rr*cols+cc]});
-    if(!nb.length){stack.pop();continue}
-    const [dr,dc,w,ow]=nb[rnd(nb.length)],nx=(r+dr)*cols+c+dc;
-    W[cur][w]=0;W[nx][ow]=0;seen[nx]=1;stack.push(nx);
-  }
-  const sc=R?cols-1:0,ec=R?0:cols-1,start=sc,end=(rows-1)*cols+ec;
-  const prev=new Int32Array(rows*cols).fill(-1),q=[start];prev[start]=start;
-  while(q.length){const cur=q.shift();if(cur===end)break;const r=Math.floor(cur/cols),c=cur%cols;
-    D.forEach(([dr,dc,w])=>{if(W[cur][w])return;const nx=(r+dr)*cols+c+dc;if(prev[nx]<0){prev[nx]=cur;q.push(nx)}});}
-  const path=[];for(let x=end;;x=prev[x]){path.unshift(x);if(x===start)break}
-  return {rows,cols,W,sc,ec,path};
+/* Every maze is carved by a depth-first search over all its cells, which makes a "perfect" maze:
+   every cell is reachable and there is exactly one path between any two cells. */
+function carve(N,nb,start){
+  const link=Array.from({length:N},()=>new Set()),seen=new Uint8Array(N),stack=[start];seen[start]=1;
+  while(stack.length){const cur=stack[stack.length-1],opts=nb(cur).filter(x=>!seen[x]);
+    if(!opts.length){stack.pop();continue}
+    const nx=opts[rnd(opts.length)];link[cur].add(nx);link[nx].add(cur);seen[nx]=1;stack.push(nx);}
+  return link;
 }
-function mazeSvg(m,key){
-  const cell=Math.floor(Math.min(680/m.cols,740/m.rows)),pad=4,w=m.cols*cell+pad*2,h=m.rows*cell+pad*2,sw=Math.max(2,cell*.09).toFixed(1);
-  let d='';
-  for(let r=0;r<m.rows;r++)for(let c=0;c<m.cols;c++){const x=pad+c*cell,y=pad+r*cell,wl=m.W[r*m.cols+c];
-    if(wl[0]&&!(r===0&&c===m.sc))d+=`M${x} ${y}h${cell}`;
-    if(wl[3])d+=`M${x} ${y}v${cell}`;
-    if(c===m.cols-1&&wl[1])d+=`M${x+cell} ${y}v${cell}`;
-    if(r===m.rows-1&&wl[2]&&c!==m.ec)d+=`M${x} ${y+cell}h${cell}`;}
-  let sol='';
-  if(key){const pts=m.path.map(i=>[pad+(i%m.cols)*cell+cell/2,pad+Math.floor(i/m.cols)*cell+cell/2]);
-    pts.unshift([pts[0][0],0]);pts.push([pts[pts.length-1][0],h]);
-    sol=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="rgba(192,57,43,0.55)" stroke-width="${(cell*.3).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round"/>`;}
-  return {w,svg:`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${sol}<path d="${d}" stroke="#000" stroke-width="${sw}" stroke-linecap="square" fill="none"/></svg>`};
+function solve(N,link,a,b){
+  const prev=new Int32Array(N).fill(-1),q=[a];prev[a]=a;
+  for(let h=0;h<q.length;h++){const cur=q[h];if(cur===b)break;for(const x of link[cur])if(prev[x]<0){prev[x]=cur;q.push(x)}}
+  if(prev[b]<0)return null;const p=[];for(let x=b;;x=prev[x]){p.unshift(x);if(x===a)break}return p;
+}
+function inPoly(x,y,pts){let ins=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){const [xi,yi]=pts[i],[xj,yj]=pts[j];
+  if(((yi>y)!==(yj>y))&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)ins=!ins}return ins}
+const MAZE_SHAPES=['magen','heart','star','apple','fish','house','dreidel'];
+function gridMaze(cols,rows,mask,startRight){
+  const idx=(r,c)=>r*cols+c,ok=(r,c)=>r>=0&&r<rows&&c>=0&&c<cols&&mask[idx(r,c)];
+  /* keep only the largest connected piece of the shape */
+  const comp=new Int32Array(rows*cols).fill(-1);let best=-1,bestSize=0,cid=0;
+  for(let i=0;i<rows*cols;i++){if(!mask[i]||comp[i]>=0)continue;const q=[i];comp[i]=cid;
+    for(let h=0;h<q.length;h++){const r=Math.floor(q[h]/cols),c=q[h]%cols;[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc])=>{if(ok(r+dr,c+dc)&&comp[idx(r+dr,c+dc)]<0){comp[idx(r+dr,c+dc)]=cid;q.push(idx(r+dr,c+dc))}})}
+    if(q.length>bestSize){bestSize=q.length;best=cid}cid++;}
+  const inside=i=>comp[i]===best;
+  const cells=[];for(let i=0;i<rows*cols;i++)if(inside(i))cells.push(i);
+  const pick=(row,right)=>{const rowCells=cells.filter(i=>Math.floor(i/cols)===row);return right?rowCells[rowCells.length-1]:rowCells[0]};
+  const rs=cells.map(i=>Math.floor(i/cols)),start=pick(Math.min(...rs),startRight),end=pick(Math.max(...rs),!startRight);
+  const nb=i=>{const r=Math.floor(i/cols),c=i%cols;return [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].filter(([a,b])=>a>=0&&a<rows&&b>=0&&b<cols&&inside(idx(a,b))).map(([a,b])=>idx(a,b))};
+  const link=carve(rows*cols,nb,start);
+  return {kind:'grid',cols,rows,inside,cells,link,start,end,path:solve(rows*cols,link,start,end),N:rows*cols,nb};
+}
+function roundMaze(rings){
+  const n=[1],base=[0];
+  for(let i=1;i<=rings;i++){let k=i===1?6:n[i-1];if(i>1&&2*Math.PI*i/k>1.7)k*=2;n.push(k);base.push(base[i-1]+n[i-1])}
+  const N=base[rings]+n[rings],id=(i,j)=>base[i]+((j%n[i])+n[i])%n[i];
+  const ring=new Int32Array(N),pos=new Int32Array(N);for(let i=0;i<=rings;i++)for(let j=0;j<n[i];j++){ring[base[i]+j]=i;pos[base[i]+j]=j}
+  const parent=x=>{const i=ring[x];if(i===0)return -1;if(i===1)return 0;return id(i-1,Math.floor(pos[x]*n[i-1]/n[i]))};
+  const nb=x=>{const i=ring[x],j=pos[x],out=[];
+    if(i===0){for(let k=0;k<n[1];k++)out.push(id(1,k));return out}
+    out.push(id(i,j+1),id(i,j-1),parent(x));
+    if(i<rings){const f=n[i+1]/n[i];for(let k=0;k<f;k++)out.push(id(i+1,j*f+k))}
+    return out};
+  const start=id(rings,0),end=0,link=carve(N,nb,start);
+  return {kind:'round',rings,n,base,ring,pos,parent,id,link,start,end,N,nb,path:solve(N,link,start,end)};
+}
+function buildMaze(){
+  const size=+val('mzSize'),style=val('mzStyle'),R=rtl();
+  if(style==='round')return roundMaze({7:4,10:6,14:8,19:11,26:14}[size]||6);
+  if(style==='rect'){const cols=size,rows=Math.round(cols*1.25);return gridMaze(cols,rows,new Array(cols*rows).fill(true),R)}
+  const sh=SHAPES[style],cols=Math.round(size*1.5)+2,mask=[];
+  for(let r=0;r<cols;r++)for(let c=0;c<cols;c++)mask.push(inPoly((c+.5)/cols*100,(r+.5)/cols*100,sh.pts));
+  return gridMaze(cols,cols,mask,R);
+}
+function mazeArt(m,key){
+  const TOP=34;let w,h,d='',pts,sx,sy,ex,ey,sw,cell;
+  if(m.kind==='grid'){
+    cell=Math.floor(Math.min(680/m.cols,740/m.rows));const pad=4,{cols,rows}=m;w=cols*cell+pad*2;h=rows*cell+pad*2;sw=Math.max(2,cell*.09);
+    const has=(r,c)=>r>=0&&r<rows&&c>=0&&c<cols&&m.inside(r*cols+c);
+    for(const i of m.cells){const r=Math.floor(i/cols),c=i%cols,x=pad+c*cell,y=pad+r*cell,L=m.link[i];
+      if(has(r-1,c)?!L.has(i-cols):i!==m.start)d+=`M${x} ${y}h${cell}`;
+      if(has(r,c-1)?!L.has(i-1):true)d+=`M${x} ${y}v${cell}`;
+      if(!has(r,c+1))d+=`M${x+cell} ${y}v${cell}`;
+      if(!has(r+1,c)&&i!==m.end)d+=`M${x} ${y+cell}h${cell}`;}
+    const ctr=i=>[pad+(i%cols)*cell+cell/2,pad+Math.floor(i/cols)*cell+cell/2];
+    pts=m.path.map(ctr);[sx,sy]=ctr(m.start);sy-=cell/2;[ex,ey]=ctr(m.end);ey+=cell/2;
+    pts.unshift([sx,sy-pad]);pts.push([ex,ey+pad]);
+  }else{
+    const Rr=Math.floor(330/(m.rings+1)),pad=6,C=pad+Rr*(m.rings+1);w=h=C*2;sw=Math.max(2,Rr*.09);cell=Rr;
+    const P=(r,a)=>[(C+r*Math.cos(a)).toFixed(1),(C+r*Math.sin(a)).toFixed(1)],A=(i,j)=>-Math.PI/2+2*Math.PI*j/m.n[i];
+    for(let i=1;i<=m.rings;i++)for(let j=0;j<m.n[i];j++){const x=m.base[i]+j,a0=A(i,j),a1=A(i,j+1),L=m.link[x];
+      if(!L.has(m.parent(x))){const [x0,y0]=P(i*Rr,a0),[x1,y1]=P(i*Rr,a1);d+=`M${x0} ${y0}A${i*Rr} ${i*Rr} 0 0 1 ${x1} ${y1}`}
+      if(!L.has(m.id(i,j+1))){const [x0,y0]=P(i*Rr,a1),[x1,y1]=P((i+1)*Rr,a1);d+=`M${x0} ${y0}L${x1} ${y1}`}
+      if(i===m.rings&&x!==m.start){const r=(i+1)*Rr,[x0,y0]=P(r,a0),[x1,y1]=P(r,a1);d+=`M${x0} ${y0}A${r} ${r} 0 0 1 ${x1} ${y1}`}}
+    const Q=(r,a)=>[C+r*Math.cos(a),C+r*Math.sin(a)],mid=x=>A(m.ring[x],m.pos[x]+.5);
+    const arc=(r,a0,a1)=>{let dl=a1-a0;while(dl>Math.PI)dl-=2*Math.PI;while(dl<-Math.PI)dl+=2*Math.PI;const k=Math.max(2,Math.ceil(Math.abs(dl)/0.12));for(let t=1;t<=k;t++)pts.push(Q(r,a0+dl*t/k))};
+    const top=Q((m.rings+1)*Rr,A(m.rings,.5));[sx,sy]=top;[ex,ey]=[C,C];
+    pts=[[sx,sy-pad],Q((m.rings+.5)*Rr,mid(m.start))];
+    for(let k=0;k+1<m.path.length;k++){const a=m.path[k],b=m.path[k+1],ia=m.ring[a],ib=m.ring[b];
+      if(ia===ib)arc((ia+.5)*Rr,mid(a),mid(b));
+      else if(ib===ia+1){if(ia===0)pts.push(Q((ib+.5)*Rr,mid(b)));else{arc((ia+.5)*Rr,mid(a),mid(b));pts.push(Q((ib+.5)*Rr,mid(b)))}}
+      else{if(ib===0)pts.push([C,C]);else{pts.push(Q((ib+.5)*Rr,mid(a)));arc((ib+.5)*Rr,mid(a),mid(b))}}}
+  }
+  const sol=key?`<polyline points="${pts.map(p=>p.map(v=>(+v).toFixed(1)).join(',')).join(' ')}" fill="none" stroke="rgba(192,57,43,0.55)" stroke-width="${(cell*.3).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round"/>`:'';
+  const l=L(),round=m.kind==='round';
+  const lab=(x,y,t,big)=>`<span style="position:absolute;left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;transform:translate(-50%,-50%);font:700 ${big||17}px Heebo,sans-serif;white-space:nowrap">${t}</span>`;
+  const labels=lab(sx,TOP+sy-16,'↓ '+esc(l.start))+(round?lab(ex,TOP+ey,'★',Math.max(14,cell*.7))+lab(w/2,TOP+h+18,'★ = '+esc(l.finish)):lab(ex,TOP+ey+18,'↓ '+esc(l.finish)));
+  return `<div class="center"><div style="position:relative;width:${w}px;height:${h+TOP*2}px"><svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="position:absolute;left:0;top:${TOP}px">${sol}<path d="${d}" stroke="#000" stroke-width="${sw.toFixed(1)}" stroke-linecap="round" fill="none"/></svg>${labels}</div></div>`;
 }
 function viewMaze(m){
-  const a=mazeSvg(m,false),b=mazeSvg(m,true);
-  const wrap=x=>`<div class="mzlab" style="width:${x.w}px;justify-content:flex-start">↓ ${esc(L().start)}</div><div class="mzwrap" style="width:${x.w}px">${x.svg}</div><div class="mzlab" style="width:${x.w}px;justify-content:flex-end">↓ ${esc(L().finish)}</div>`;
-  return {pages:[head(val('mzTitle'),val('mzInstr'))+`<div class="center" style="flex-direction:column;align-items:center">${wrap(a)}</div>`],
-    keys:[keyHead(val('mzTitle'))+`<div class="center" style="flex-direction:column;align-items:center">${wrap(b)}</div>`],msg:`A new ${m.cols} × ${m.rows} maze. Press New layout for a different one.`,ok:true};
+  return {pages:[head(val('mzTitle'),val('mzInstr'))+mazeArt(m,false)],keys:[keyHead(val('mzTitle'))+mazeArt(m,true)],
+    msg:`A new maze with ${m.kind==='grid'?m.cells.length:m.N} rooms and exactly one way through. Press New layout for a different one.`,ok:true};
 }
 
 /* ---------- connect the dots ---------- */
