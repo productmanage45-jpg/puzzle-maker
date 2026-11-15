@@ -141,6 +141,12 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 .bgrid .bfree{background:#e9e9e9;font-family:Heebo,sans-serif}
 .slips{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px dashed #555;border-inline-start:1px dashed #555;margin-top:10px}
 .slips div{border-bottom:1px dashed #555;border-inline-end:1px dashed #555;padding:16px 6px;text-align:center;font-size:20px;font-weight:700}
+.cbgrid{display:grid;border-top:1px solid #777;border-inline-start:1px solid #777}
+.cbgrid div{border-bottom:1px solid #777;border-inline-end:1px solid #777;display:flex;align-items:center;justify-content:center;font-family:Heebo,sans-serif;font-weight:500;line-height:1;white-space:nowrap;overflow:hidden}
+.cbkey{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin:0 0 18px;font-size:18px}
+.cbkey div{display:flex;align-items:center;gap:6px}
+.cbkey b{font-family:Heebo,sans-serif;min-width:1.4em;text-align:center}
+.cbkey i{display:inline-block;width:20px;height:20px;border:1px solid #000;border-radius:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 @media print{
   @page{size:letter;margin:0}
   :root{padding:0}
@@ -278,7 +284,17 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
       <label class="check"><input type="checkbox" id="bgFree" checked data-rebuild> Free space in the middle (3 × 3 and 5 × 5)</label>
     </div>
 
-    <label class="check hidden" id="marksRow"><input type="checkbox" id="yiMarks" data-rebuild checked> Keep Yiddish letter marks (אַ אָ פּ פֿ)</label>
+    <div class="panel" data-type="color">
+      <label class="f" for="cbTitle">Title</label><input type="text" id="cbTitle" dir="auto">
+      <label class="f" for="cbInstr">Instructions</label><input type="text" id="cbInstr" dir="auto">
+      <label class="f" for="cbPic">Picture</label>
+      <select id="cbPic" data-rebuild><option value="apple">Apple</option><option value="house">House</option><option value="fish">Fish</option><option value="candle">Candle</option><option value="dreidel">Dreidel</option><option value="menorah">Menorah</option><option value="magen">Magen David</option><option value="heart">Heart</option></select>
+      <label class="f" for="cbLabel">Squares show</label>
+      <select id="cbLabel" data-rebuild><option value="num">Numbers</option><option value="abc">Letters</option><option value="add">Addition problems</option><option value="sub">Subtraction problems</option><option value="mul">Multiplication problems</option></select>
+      <label class="check"><input type="checkbox" id="cbBg" data-rebuild> Number the background squares too (white)</label>
+    </div>
+
+    <label class="check hidden" id="marksRow"><input type="checkbox" id="yiMarks" data-rebuild checked> Keep Yiddish letter marks (אַ אָ)</label>
     <hr>
     <label class="check"><input type="checkbox" id="optName" checked> Name line at the top</label>
     <label class="check" id="keyRow"><input type="checkbox" id="optKey"> <span id="keyLabel">Answer key</span> <span class="hint">(its own page)</span></label>
@@ -325,26 +341,26 @@ const LANGS={
       msTitle:'אותיות חסרות',msInstr:'השלימו את האותיות החסרות.',msWords:'תורה\nמשנה\nשבת\nברכה\nתפילה\nמצוה\nישיבה\nמזוזה',
       mtTitle:'התאמה',mtInstr:'מתחו קו מכל מילה אל ההגדרה שלה.',
       mtWords:'שבת - היום השביעי בשבוע\nשופר - תוקעים בו בראש השנה\nסוכה - יושבים בה שבעה ימים\nמצה - אוכלים אותה בפסח\nמזוזה - קובעים אותה על פתח הבית\nחנוכה - חג של שמונה ימים',
-      bgTitle:'בינגו',bgWords:BINGO_HE}},
-  yi:{dir:'rtl',loc:'yi',name:'נאָמען:',across:'אַריבער',down:'אַראָפּ',key:'ענטפֿערס',start:'אָנהייב',finish:'סוף',free:'פֿרײַ',caller:'ווערטער צום אויסרופֿן',
+      bgTitle:'בינגו',bgWords:BINGO_HE,cbTitle:'צבעו לפי המספרים',cbInstr:'צבעו כל משבצת בצבע של המספר שלה.'}},
+  yi:{dir:'rtl',loc:'yi',name:'נאָמען:',across:'אַריבער',down:'אַראָפ',key:'ענטפערס',start:'אָנהייב',finish:'סוף',free:'פרײַ',caller:'ווערטער צום אויסרופן',
     easy:'Right-to-left and down',dotsAlpha:HEB22,
-    alpha:['אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פּ','פֿ','צ','ק','ר','ש','ת'],
-    order:['א','אַ','אָ','ב','בֿ','ג','ד','ה','ו','וּ','װ','ז','ח','ט','י','יִ','ײ','ײַ','ױ','כּ','כ','ך','ל','מ','ם','נ','ן','ס','ע','פּ','פ','פֿ','ף','צ','ץ','ק','ר','ש','שׂ','תּ','ת'],
-    core:['א','אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פּ','פֿ','צ','ק','ר','ש','ת'],
-    def:{wsTitle:'זוכט די ווערטער',wsInstr:'געפֿינט און צייכנט אָן אַלע ווערטער.',
+    alpha:['אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'],
+    order:['א','אַ','אָ','ב','בֿ','ג','ד','ה','ו','וּ','װ','ז','ח','ט','י','יִ','ײ','ײַ','ױ','כּ','כ','ך','ל','מ','ם','נ','ן','ס','ע','פ','ף','צ','ץ','ק','ר','ש','שׂ','תּ','ת'],
+    core:['א','אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'],
+    def:{wsTitle:'זוכט די ווערטער',wsInstr:'געפינט און צייכנט אָן אַלע ווערטער.',
       wsWords:'תורה\nמשנה\nישיבה\nמצוה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
       cwTitle:'קרייצווערטער',cwInstr:'לייזט אויס דאָס קרייצווערטער מיט די אָנווייזונגען.',
-      cwWords:'שבת - דער זיבעטער טאָג פֿון דער וואָך\nתורה - געגעבן אויפֿן באַרג סיני\nסוכה - מען זיצט אין איר זיבן טעג\nשופֿר - מען בלאָזט אים ראָש השנה\nמזוזה - מען קלאַפּט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט\nמצה - מען עסט זי פּסח\nירושלים - די שטאָט פֿון בית המקדש',
-      mzTitle:'לאַבירינט',mzInstr:'געפֿינט דעם וועג פֿון אָנהייב ביזן סוף.',
-      dtTitle:'פֿאַרבינדט די פּינטלעך',dtInstr:'פֿאַרבינדט די פּינטלעך לויט דער ריי. וואָס קומט אַרויס?',
-      trTitle:'שרײַבט איבער',trInstr:'פֿירט מיטן בלײַער איבער די אותיות.',trWords:'שלום\nתורה\nשבת\nמאַמע\nטאַטע',
+      cwWords:'שבת - דער זיבעטער טאָג פון דער וואָך\nתורה - געגעבן אויפן באַרג סיני\nסוכה - מען זיצט אין איר זיבן טעג\nשופר - מען בלאָזט אים ראָש השנה\nמזוזה - מען קלאַפט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט\nמצה - מען עסט זי פסח\nירושלים - די שטאָט פון בית המקדש',
+      mzTitle:'לאַבירינט',mzInstr:'געפינט דעם וועג פון אָנהייב ביזן סוף.',
+      dtTitle:'פאַרבינדט די פינטלעך',dtInstr:'פאַרבינדט די פינטלעך לויט דער ריי. וואָס קומט אַרויס?',
+      trTitle:'שרײַבט איבער',trInstr:'פירט מיטן בלײַער איבער די אותיות.',trWords:'שלום\nתורה\nשבת\nמאַמע\nטאַטע',
       cdTitle:'געהיימער קאָד',cdInstr:'לייענט אויס די געהיימע ידיעה מיט דעם שליסל.',cdWords:'ואהבת לרעך כמוך',
       scTitle:'צעמישטע ווערטער',scInstr:'שטעלט אויס די אותיות און שרײַבט דאָס וואָרט.',
-      scWords:'שבת - דער זיבעטער טאָג\nתורה - געגעבן אויפֿן באַרג סיני\nסוכה - מען זיצט אין איר סוכּות\nשופֿר - מען בלאָזט אים ראָש השנה\nמצה - מען עסט זי פּסח\nחנוכה - מען צינדט ליכט אַכט טעג',
-      msTitle:'פֿעלנדיקע אותיות',msInstr:'שרײַבט אַרײַן די פֿעלנדיקע אותיות.',msWords:'תורה\nמשנה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
-      mtTitle:'צופּאַסן',mtInstr:'ציט אַ שטריך פֿון יעדן וואָרט צו זײַן טײַטש.',
-      mtWords:'שבת - דער זיבעטער טאָג פֿון דער וואָך\nשופֿר - מען בלאָזט אים ראָש השנה\nסוכה - מען זיצט אין איר זיבן טעג\nמצה - מען עסט זי פּסח\nמזוזה - מען קלאַפּט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט',
-      bgTitle:'בינגאָ',bgWords:BINGO_HE}},
+      scWords:'שבת - דער זיבעטער טאָג\nתורה - געגעבן אויפן באַרג סיני\nסוכה - מען זיצט אין איר סוכּות\nשופר - מען בלאָזט אים ראָש השנה\nמצה - מען עסט זי פסח\nחנוכה - מען צינדט ליכט אַכט טעג',
+      msTitle:'פעלנדיקע אותיות',msInstr:'שרײַבט אַרײַן די פעלנדיקע אותיות.',msWords:'תורה\nמשנה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
+      mtTitle:'צופאַסן',mtInstr:'ציט אַ שטריך פון יעדן וואָרט צו זײַן טײַטש.',
+      mtWords:'שבת - דער זיבעטער טאָג פון דער וואָך\nשופר - מען בלאָזט אים ראָש השנה\nסוכה - מען זיצט אין איר זיבן טעג\nמצה - מען עסט זי פסח\nמזוזה - מען קלאַפט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט',
+      bgTitle:'בינגאָ',bgWords:BINGO_HE,cbTitle:'מאָלט לויט די נומערן',cbInstr:'מאָלט יעדן קעסטל אין דעם קאָליר פון זײַן נומער.'}},
   en:{dir:'ltr',loc:'en',name:'Name:',across:'Across',down:'Down',key:'Answer Key',start:'Start',finish:'Finish',free:'FREE',caller:'Caller list',
     easy:'Left-to-right and down',alpha:AZ,dotsAlpha:AZ,order:AZ,core:AZ,
     def:{wsTitle:'Word Search',wsInstr:'Find and circle all the words.',
@@ -360,21 +376,22 @@ const LANGS={
       msTitle:'Missing Letters',msInstr:'Fill in the missing letters.',msWords:'Torah\nMishnah\nShabbos\nBracha\nTefillah\nMitzvah\nYeshiva\nMezuzah',
       mtTitle:'Matching',mtInstr:'Draw a line from each word to its meaning.',
       mtWords:'Shabbos - The seventh day of the week\nShofar - Blown on Rosh Hashanah\nSukkah - We sit in it for seven days\nMatzah - Eaten on Pesach\nMezuzah - Put on the doorpost\nChanukah - A holiday of eight days',
-      bgTitle:'BINGO',bgWords:'Torah\nMishnah\nGemara\nShabbos\nBracha\nTefillah\nMitzvah\nYeshiva\nSukkah\nShofar\nMezuzah\nChanukah\nMatzah\nYerushalayim\nPesach\nPurim\nMegillah\nLulav\nEsrog\nChallah'}}
+      bgTitle:'BINGO',bgWords:'Torah\nMishnah\nGemara\nShabbos\nBracha\nTefillah\nMitzvah\nYeshiva\nSukkah\nShofar\nMezuzah\nChanukah\nMatzah\nYerushalayim\nPesach\nPurim\nMegillah\nLulav\nEsrog\nChallah',cbTitle:'Color by Number',cbInstr:'Color each square with the color for its number.'}}
 };
-const TYPES=[['search','Word search','ws'],['cross','Crossword','cw'],['maze','Maze','mz'],['dots','Connect the dots','dt'],['trace','Tracing','tr'],['code','Secret code','cd'],['scramble','Word scramble','sc'],['missing','Missing letters','ms'],['match','Matching','mt'],['bingo','Bingo','bg']];
+const TYPES=[['search','Word search','ws'],['cross','Crossword','cw'],['maze','Maze','mz'],['dots','Connect the dots','dt'],['trace','Tracing','tr'],['code','Secret code','cd'],['scramble','Word scramble','sc'],['missing','Missing letters','ms'],['match','Matching','mt'],['bingo','Bingo','bg'],['color','Color by number','cb']];
 const CONTENT=[];TYPES.forEach(([,,p])=>['Title','Instr','Words'].forEach(s=>{if(document.getElementById(p+s))CONTENT.push(p+s)}));
-const SHARED=['wsSize','wsLevel','wsBank','wsUnfinal','cwLen','mzSize','mzStyle','dtShape','dtLabel','dtStart','trSize','trRepeat','trStyle','trLines','trPractice','cdMode','cdOnly','msHide','msBank','bgSize','bgCount','bgPer','bgFree','optName','optKey','yiMarks'];
+const SHARED=['wsSize','wsLevel','wsBank','wsUnfinal','cwLen','mzSize','mzStyle','dtShape','dtLabel','dtStart','trSize','trRepeat','trStyle','trLines','trPractice','cdMode','cdOnly','msHide','msBank','bgSize','bgCount','bgPer','bgFree','cbPic','cbLabel','cbBg','optName','optKey','yiMarks'];
 const FIELDS=CONTENT.concat(SHARED);
 let type='search',lang='he',perLang={};
 const S={};
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const noPeMarks=s=>lang==='yi'?String(s).replace(/([\u05E4\u05E3])[\u05BC\u05BF]/g,'$1'):String(s);
+const esc=s=>noPeMarks(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rnd=n=>Math.floor(Math.random()*n);
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 const L=()=>LANGS[lang];
 const rtl=()=>L().dir==='rtl';
 
-const YIKEEP={'א':'\u05B7\u05B8','פ':'\u05BC\u05BF','ב':'\u05BF','כ':'\u05BC','ת':'\u05BC','ש':'\u05C2','ו':'\u05BC','י':'\u05B4','ײ':'\u05B7'};
+const YIKEEP={'א':'\u05B7\u05B8','ב':'\u05BF','כ':'\u05BC','ת':'\u05BC','ש':'\u05C2','ו':'\u05BC','י':'\u05B4','ײ':'\u05B7'};
 const yiMarksOn=()=>lang==='yi'&&$('yiMarks').checked;
 function letters(w,unfinal){
   if(lang==='en')return Array.from(w.toUpperCase().replace(/[^A-Z]/g,''));
@@ -411,9 +428,9 @@ const SHAPES={
      {line:[[36,20],[38,31],[43,39],[50,42]]},{line:[[64,20],[62,31],[57,39],[50,42]]},
      {line:[[50,20],[50,88]]},{line:[[34,96],[41,88],[59,88],[66,96],[34,96]]},
      flame(12),flame(24),flame(36),flame(50),flame(64),flame(76),flame(88)]},
- shofar:{n:['שופר','שופֿר','Shofar'],closed:true,
+ shofar:{n:['שופר','שופר','Shofar'],closed:true,
    pts:[[6,56],[20,59],[36,63],[50,62],[63,56],[73,45],[79,32],[82,18],[98,26],[92,40],[86,54],[76,66],[63,75],[48,79],[33,77],[18,71],[6,62]],extra:[]},
- torah:{n:['ספר תורה','ספֿר תורה','Sefer Torah'],closed:true,
+ torah:{n:['ספר תורה','ספר תורה','Sefer Torah'],closed:true,
    pts:[[17,3],[21,3],[21,12],[25,14],[25,20],[75,20],[75,14],[79,12],[79,3],[83,3],[83,12],[87,14],[87,86],[83,88],[83,97],[79,97],[79,88],[75,86],[75,80],[25,80],[25,86],[21,88],[21,97],[17,97],[17,88],[13,86],[13,14],[17,12]],
    extra:[{line:[[25,20],[25,80]]},{line:[[75,20],[75,80]]},{line:[[33,32],[67,32]]},{line:[[33,42],[67,42]]},{line:[[33,52],[67,52]]},{line:[[33,62],[67,62]]}]},
  candle:{n:['נר','ליכט','Candle'],closed:true,
@@ -423,10 +440,10 @@ const SHAPES={
    pts:[[30,12],[70,12],[68,34],[61,47],[54,52],[54,76],[67,83],[70,91],[30,91],[33,83],[46,76],[46,52],[39,47],[32,34]],extra:[{line:[[31,22],[69,22]]},{line:[[46,52],[54,52]]}]},
  dreidel:{n:['סביבון','דריידל','Dreidel'],closed:true,
    pts:[[50,96],[27,72],[27,36],[44,36],[44,12],[56,12],[56,36],[73,36],[73,72]],extra:[{line:[[27,72],[73,72]]}]},
- apple:{n:['תפוח','עפּל','Apple'],closed:true,
+ apple:{n:['תפוח','עפל','Apple'],closed:true,
    pts:[[50,30],[60,23],[72,23],[82,31],[88,45],[87,61],[80,76],[68,88],[58,91],[50,88],[42,91],[32,88],[20,76],[13,61],[12,45],[18,31],[28,23],[40,23]],
    extra:[{line:[[50,30],[51,20],[54,11]]},{line:[[53,17],[62,9],[73,9],[64,17],[53,17]]}]},
- fish:{n:['דג','פֿיש','Fish'],closed:true,
+ fish:{n:['דג','פיש','Fish'],closed:true,
    pts:[[8,50],[17,40],[30,32],[45,28],[58,30],[70,37],[78,45],[92,30],[96,33],[88,50],[96,67],[92,70],[78,55],[70,63],[58,70],[45,72],[30,68],[17,60]],
    extra:[{circle:[23,45,2.2]},{line:[[38,38],[42,50],[38,62]]}]},
  house:{n:['בית','הויז','House'],closed:true,
@@ -647,6 +664,53 @@ function viewMaze(m){
     msg:`A new maze with ${m.kind==='grid'?m.cells.length:m.N} rooms and exactly one way through. Press New layout for a different one.`,ok:true};
 }
 
+/* ---------- color by number ---------- */
+const CB_COLORS={R:['#e53935','אדום','רויט','red'],G:['#43a047','ירוק','גרין','green'],B:['#1e63c8','כחול','בלוי','blue'],Y:['#fdd835','צהוב','געל','yellow'],
+  O:['#fb8c00','כתום','אָראַנזש','orange'],N:['#795548','חום','ברוין','brown'],P:['#8e24aa','סגול','לילא','purple'],K:['#212121','שחור','שוואַרץ','black'],
+  I:['#f48fb1','ורוד','ראָזע','pink'],A:['#9e9e9e','אפור','גרוי','gray'],L:['#81d4fa','תכלת','הימלבלוי','light blue'],'.':['#ffffff','לבן','ווײַס','white']};
+function rasterPoly(pts,n,inner,fill,inFill){const g=[];for(let r=0;r<n;r++){let row='';for(let c=0;c<n;c++){const x=(c+.5)/n*100,y=(r+.5)/n*100;
+  row+=inPoly(x,y,pts)?(inner&&inPoly(x,y,inner)?inFill:fill):'.'}g.push(row)}return g}
+const CB_PICS={
+  apple:['................','.......NN.......','.......N..GG....','.......N.GGG....','......RNRGG.....','...RRRRRRRRRR...','..RRRRRRRRRRRR..','..RRIRRRRRRRRR..','.RRIRRRRRRRRRRR.','.RRIRRRRRRRRRRR.','.RRRRRRRRRRRRRR.','.RRRRRRRRRRRRRR.','..RRRRRRRRRRRR..','..RRRRRRRRRRRR..','...RRRRRRRRRR...','.....RRR.RRR....'],
+  house:['................','..........NN....','.......RR.NN....','......RRRRNN....','.....RRRRRRR....','....RRRRRRRRR...','...RRRRRRRRRRR..','..RRRRRRRRRRRRR.','...YYYYYYYYYYY..','...YLLYYYYYLLY..','...YLLYYYYYLLY..','...YYYYNNNYYYY..','...YYYYNNNYYYY..','...YYYYNNNYYYY..','GGGGGGGNNNGGGGGG','GGGGGGGGGGGGGGGG'],
+  fish:['LLLLLLLLLLLLLLLL','LLLLLLLLLLLLLLLL','LLLLLOOOOOLLLLLL','LLLOOOOOOOOOLLLL','LLOOOOYOOOOOOLLO','LOOKOOYOOOOOOOOO','OOOOOOYOOOOOOOOL','OOOOOOYOOOOOOOLL','OOOOOOYOOOOOOOLL','LOOOOOYOOOOOOOOL','LLOOOOYOOOOOOOOO','LLLOOOOOOOOOLLLO','LLLLLOOOOOLLLLLL','LLLLLLLLLLLLLLLL','LLLLLLLLLLLLLLLL','LLLLLLLLLLLLLLLL'],
+  candle:['.......Y........','......YYY.......','......YOY.......','.....YYOYY......','.....YOROY......','......YOY.......','.......K........','.....BBBBB......','.....BBLBB......','.....BBLBB......','.....BBLBB......','.....BBLBB......','.....BBBBB......','.....BBBBB......','...AAAAAAAAA....','..AAAAAAAAAAA...'],
+  dreidel:['.......NN.......','.......NN.......','.......NN.......','....BBBBBBBB....','...BBBBBBBBBB...','...YYYYYYYYYY...','...BBBBBBBBBB...','...BBBBBBBBBB...','...YYYYYYYYYY...','...BBBBBBBBBB...','...BBBBBBBBBB...','....BBBBBBBB....','.....BBBBBB.....','......BBBB......','.......BB.......','................'],
+  menorah:['.O.O.O.O.O.O.O..','.Y.Y.Y.Y.Y.Y.Y..','.Y.Y.Y.Y.Y.Y.Y..','.Y.Y.Y.Y.Y.Y.Y..','.Y.Y.Y.Y.Y.Y.Y..','.Y.Y.Y.Y.Y.Y.Y..','.Y.Y.YYYYY.Y.Y..','.Y.Y...Y...Y.Y..','.Y.YYYYYYYYY.Y..','.Y.....Y.....Y..','.YYYYYYYYYYYYY..','.......Y........','.......Y........','.....YYYYY......','....YYYYYYY.....','................'],
+  magen:null,heart:null
+};
+function cbPic(k){if(CB_PICS[k])return CB_PICS[k];
+  if(k==='magen')return rasterPoly(SHAPES.magen.pts,17,SHAPES.magen.pts.map(([x,y])=>[50+(x-50)*.55,52+(y-52)*.55]),'B','L');
+  if(k==='heart')return rasterPoly(SHAPES.heart.pts,16,SHAPES.heart.pts.map(([x,y])=>[30+(x-30)*.35,32+(y-32)*.35]),'R','I');}
+const CB_MUL=[12,16,18,20,24,28,30,32,36,40,42,48];
+function buildColor(){
+  const g=cbPic(val('cbPic'))||cbPic('apple'),bg=$('cbBg').checked,mode=val('cbLabel');
+  const used=[];g.join('').split('').forEach(ch=>{if((ch!=='.'||bg)&&!used.includes(ch))used.push(ch)});
+  let vals;
+  if(mode==='add')vals=shuffle([...Array(13).keys()].map(i=>i+6)).slice(0,used.length);
+  else if(mode==='sub')vals=shuffle([...Array(12).keys()].map(i=>i+1)).slice(0,used.length);
+  else if(mode==='mul')vals=shuffle(CB_MUL.slice()).slice(0,used.length);
+  else vals=used.map((_,i)=>i+1);
+  const valOf={};used.forEach((ch,i)=>valOf[ch]=vals[i]);
+  const prob=v=>{if(mode==='add'){const a=rnd(v+1);return `${a}+${v-a}`}
+    if(mode==='sub'){const b=1+rnd(9);return `${v+b}−${b}`}
+    if(mode==='mul'){const f=[];for(let a=2;a<v;a++)if(v%a===0)f.push(a);const a=f[rnd(f.length)];return `${a}×${v/a}`}
+    return null};
+  const cells=g.map(row=>row.split('').map(ch=>(ch==='.'&&!bg)?null:{ch,p:prob(valOf[ch])}));
+  return {g,cells,used,valOf,mode};
+}
+function viewColor(s){
+  const n=s.g.length,cell=Math.floor(640/n),li={he:1,yi:2,en:3}[lang],abc=L().dotsAlpha,isAbc=s.mode==='abc';
+  const lab=ch=>isAbc?abc[s.used.indexOf(ch)]:s.valOf[ch];
+  const grid=key=>`<div class="center"><div class="cbgrid" style="grid-template-columns:repeat(${n},${cell}px);grid-auto-rows:${cell}px">${s.cells.flat().map(x=>{
+    if(!x)return `<div${key?'':''}></div>`;
+    const t=key?'':esc(x.p||lab(x.ch)),fs=x.p?Math.max(9,Math.round(cell*(x.p.length>4?.24:.3))):Math.round(cell*.38);
+    return `<div style="${key?`background:${CB_COLORS[x.ch][0]};`:''}font-size:${fs}px">${t}</div>`}).join('')}</div></div>`;
+  const keyRow=`<div class="cbkey">${s.used.map(ch=>`<div><b>${esc(lab(ch))}</b><i style="background:${CB_COLORS[ch][0]}"></i><span>${esc(CB_COLORS[ch][li])}</span></div>`).join('')}</div>`;
+  return {pages:[head(val('cbTitle'),val('cbInstr'))+keyRow+grid(false)],keys:[keyHead(val('cbTitle'))+grid(true)],
+    msg:`${s.used.length} colors.${s.mode!=='num'&&s.mode!=='abc'?' Press New layout for different problems.':''}`,ok:true};
+}
+
 /* ---------- connect the dots ---------- */
 function buildDots(){return {shape:SHAPES[val('dtShape')]||SHAPES.magen}}
 function dotsArt(sh,key){
@@ -695,7 +759,7 @@ function traceRow(text,size,repeat,style,ruled,blank){
   return {src:c.toDataURL('image/png'),h};
 }
 function viewTrace(){
-  const words=lines('trWords');
+  const words=lines('trWords').map(noPeMarks);
   if(!words.length)return emptyOut('Add at least one word to trace.');
   const size=+val('trSize'),rep=+val('trRepeat'),style=val('trStyle'),ruled=$('trLines').checked,prac=$('trPractice').checked;
   const rows=[];
@@ -798,7 +862,7 @@ function viewBingo(s){
 
 /* ---------- wiring ---------- */
 const GEN={search:[buildSearch,viewSearch],cross:[buildCross,viewCross],maze:[buildMaze,viewMaze],dots:[buildDots,viewDots],trace:[buildTrace,viewTrace],
-  code:[buildCode,viewCode],scramble:[buildScramble,viewScramble],missing:[buildMissing,viewMissing],match:[buildMatch,viewMatch],bingo:[buildBingo,viewBingo]};
+  code:[buildCode,viewCode],scramble:[buildScramble,viewScramble],missing:[buildMissing,viewMissing],match:[buildMatch,viewMatch],bingo:[buildBingo,viewBingo],color:[buildColor,viewColor]};
 const PREFIX={};TYPES.forEach(([id,,p])=>PREFIX[p]=id);
 
 function grabContent(){const o={};CONTENT.forEach(id=>o[id]=$(id).value);return o}
