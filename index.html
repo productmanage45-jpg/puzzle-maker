@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Puzzle Maker · חיפוש מילים ותשבץ</title>
+<title>Puzzle Maker · דפי עבודה ומשחקים</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700&family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#E7ECF1; --panel:#FFFFFF; --ink:#18222E; --muted:#596676; --line:#C7D0DA;
@@ -39,7 +39,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Heebo,"Segoe U
 @media (max-width:860px){.layout{grid-template-columns:1fr}}
 .controls{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
 .tabs{display:flex;gap:4px;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:4px;margin-bottom:16px}
-.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:500 15px Heebo,sans-serif;padding:8px;border-radius:6px;cursor:pointer}
+.tabs button{flex:1;min-width:0;border:0;background:transparent;color:var(--muted);font:500 15px Heebo,sans-serif;padding:8px;border-radius:6px;cursor:pointer}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
 label.f{display:block;font-weight:500;margin:12px 0 4px}
 .hint{color:var(--muted);font-weight:400;font-size:13px}
@@ -94,21 +94,68 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 .small{font-size:13px;color:var(--muted);margin:8px 0 0}
 .btns button:disabled{opacity:.55;cursor:progress}
 .sheet[dir=ltr] .clues li b{min-width:1.8em}
+.types{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-bottom:16px}
+.types button{border:1px solid var(--line);background:var(--field);color:var(--ink);font:500 14px Heebo,sans-serif;padding:7px 8px;border-radius:6px;cursor:pointer;text-align:start}
+.types button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.panel input[type=number]{width:100%;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:15px Heebo,sans-serif}
+.pagebox{display:flex;flex-direction:column}
+.contd{height:6px}
+.mzlab{display:flex;font:700 18px Heebo,sans-serif;margin:0 auto;padding:0 2px}
+.mzwrap{margin:4px auto 0}
+.dots{position:relative;margin:4px auto 0}
+.dots svg{position:absolute;inset:0}
+.dots span{position:absolute;transform:translate(-50%,-50%);font:500 14px/1 Heebo,sans-serif;color:#000;white-space:nowrap}
+.trace img{display:block;width:100%;margin:0 0 6px}
+.codekey{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;border:1px solid #000;border-radius:6px;padding:10px;margin:0 0 26px}
+.codekey div{display:flex;flex-direction:column;align-items:center;width:38px;border:1px solid #000;border-radius:4px;overflow:hidden}
+.codekey b{display:block;width:100%;text-align:center;font-size:20px;border-bottom:1px solid #000;padding:2px 0}
+.sym{font-style:normal;font-family:"Noto Sans Symbols 2","Noto Sans Symbols","Segoe UI Symbol",Heebo,sans-serif}
+.codekey i{font-size:19px;padding:3px 0;font-family:"Noto Sans Symbols 2","Noto Sans Symbols","Segoe UI Symbol",Heebo,sans-serif;font-style:normal}
+.codekey.num i,.codemsg.num i{font-family:Heebo,sans-serif;font-weight:700}
+.codemsg{display:flex;flex-wrap:wrap;gap:18px 30px;justify-content:center}
+.cword{display:flex;gap:4px}
+.ccell{display:flex;flex-direction:column;align-items:center;width:40px}
+.ccell i{font-size:22px;font-style:normal;font-family:"Noto Sans Symbols 2","Noto Sans Symbols","Segoe UI Symbol",Heebo,sans-serif;height:30px;display:flex;align-items:center}
+.ccell b{width:38px;height:42px;border-bottom:2px solid #000;display:flex;align-items:flex-end;justify-content:center;font-size:26px}
+.rows{display:flex;flex-direction:column;gap:20px;font-size:20px}
+.rowi{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.rowi>b{min-width:1.6em}
+.tiles{display:flex;gap:5px;flex-wrap:wrap}
+.tile{width:40px;height:44px;border:1.5px solid #000;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:700}
+.tile.gap{border-style:dashed;border-color:#777}
+.tile.gap em{font-style:normal;color:#000}
+.ansline{flex:1;min-width:150px;border-bottom:1.5px solid #000;height:38px;font-size:24px;font-weight:700;display:flex;align-items:flex-end;padding:0 6px 2px}
+.hintt{flex-basis:100%;color:#444;font-size:17px;margin-top:-6px;padding-inline-start:2.4em}
+.bank{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin-top:24px;font-size:22px;font-weight:700;border:1px solid #000;border-radius:6px;padding:10px 14px}
+.match{display:grid;grid-template-columns:1fr 120px 1fr;row-gap:24px;font-size:20px;align-items:center}
+.match .mw{display:flex;align-items:center;gap:10px}
+.match .mw.l{justify-content:space-between}
+.match .mw.r{justify-content:space-between}
+.match .pt{font-size:13px}
+.mnum{display:inline-block;min-width:34px;border-bottom:1.5px solid #000;text-align:center;font-weight:700;height:28px}
+.bcard{display:flex;flex-direction:column;align-items:center}
+.bcard+.bcard{margin-top:28px;padding-top:24px;border-top:1.5px dashed #888}
+.bcard .top{width:100%}
+.bgrid{display:grid;border-top:2px solid #000;border-inline-start:2px solid #000;margin-top:6px}
+.bgrid div{border-bottom:2px solid #000;border-inline-end:2px solid #000;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;font-weight:700;line-height:1.15;overflow-wrap:anywhere}
+.bgrid .bfree{background:#e9e9e9;font-family:Heebo,sans-serif}
+.slips{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px dashed #555;border-inline-start:1px dashed #555;margin-top:10px}
+.slips div{border-bottom:1px dashed #555;border-inline-end:1px dashed #555;padding:16px 6px;text-align:center;font-size:20px;font-weight:700}
 @media print{
   @page{size:letter;margin:0}
   :root{padding:0}
   html,body{background:#fff}
   .app-head,.controls{display:none!important}
   .layout{display:block;padding:0;max-width:none}
-  .sheet{box-shadow:none;margin:0;padding:0.5in;max-width:none;border-radius:0;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .key{break-before:page}
+  .sheet{box-shadow:none;margin:0;padding:0.5in;max-width:none;border-radius:0;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact;break-inside:avoid}
+  .sheet+.sheet{break-before:page}
 }
 </style>
 </head>
 <body>
 <header class="app-head">
-  <h1 class="he">חיפוש מילים ותשבץ</h1>
-  <p>Hebrew, Yiddish or English. Type your words, check the preview, print or download.</p>
+  <h1 class="he">דפי עבודה ומשחקים</h1>
+  <p>Hebrew, Yiddish or English puzzles. Type your words, check the preview, print or download.</p>
 </header>
 
 <main class="layout">
@@ -116,58 +163,123 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
     <div class="langbar">
       <label class="f" style="margin-top:0">Sheet language</label>
       <div class="tabs" role="tablist" aria-label="Sheet language">
-        <button role="tab" id="lang-he" data-lang="he" aria-selected="true">עברית</button>
-        <button role="tab" id="lang-yi" data-lang="yi" aria-selected="false">ייִדיש</button>
-        <button role="tab" id="lang-en" data-lang="en" aria-selected="false" style="font-family:Heebo,sans-serif">English</button>
+        <button role="tab" data-lang="he" aria-selected="true">עברית</button>
+        <button role="tab" data-lang="yi" aria-selected="false">ייִדיש</button>
+        <button role="tab" data-lang="en" aria-selected="false" style="font-family:Heebo,sans-serif">English</button>
       </div>
     </div>
-    <div class="tabs" role="tablist">
-      <button role="tab" id="tabSearch" aria-selected="true">Word search</button>
-      <button role="tab" id="tabCross" aria-selected="false">Crossword</button>
-    </div>
+    <label class="f">Puzzle</label>
+    <div class="types" role="tablist" id="types"></div>
 
-    <div id="panelSearch">
-      <label class="f" for="wsTitle">Title</label>
-      <input type="text" id="wsTitle" dir="auto">
-      <label class="f" for="wsInstr">Instructions</label>
-      <input type="text" id="wsInstr" dir="auto">
-      <label class="f" for="wsWords">Words <span class="hint" id="wsHint">one per line</span></label>
+    <div class="panel" data-type="search">
+      <label class="f" for="wsTitle">Title</label><input type="text" id="wsTitle" dir="auto">
+      <label class="f" for="wsInstr">Instructions</label><input type="text" id="wsInstr" dir="auto">
+      <label class="f" for="wsWords">Words <span class="hint">one per line</span></label>
       <textarea id="wsWords" data-rebuild></textarea>
       <div class="row">
-        <div>
-          <label class="f" for="wsSize">Grid size</label>
-          <select id="wsSize" data-rebuild>
-            <option value="auto">Auto</option>
-            <option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option>
-          </select>
-        </div>
-        <div>
-          <label class="f" for="wsLevel">Words run</label>
-          <select id="wsLevel" data-rebuild>
-            <option value="easy" id="easyOpt">Right-to-left and down</option>
-            <option value="medium" selected>Plus diagonals</option>
-            <option value="hard">Every way, incl. backwards</option>
-          </select>
-        </div>
+        <div><label class="f" for="wsSize">Grid size</label>
+          <select id="wsSize" data-rebuild><option value="auto">Auto</option><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option></select></div>
+        <div><label class="f" for="wsLevel">Words run</label>
+          <select id="wsLevel" data-rebuild><option value="easy" id="easyOpt">Right-to-left and down</option><option value="medium" selected>Plus diagonals</option><option value="hard">Every way, incl. backwards</option></select></div>
       </div>
       <label class="check"><input type="checkbox" id="wsBank" checked> Show the word list on the sheet</label>
       <label class="check" id="unfinalRow"><input type="checkbox" id="wsUnfinal" data-rebuild> Use regular letters for finals (ך becomes כ)</label>
     </div>
 
-    <div id="panelCross" class="hidden">
-      <label class="f" for="cwTitle">Title</label>
-      <input type="text" id="cwTitle" dir="auto">
-      <label class="f" for="cwInstr">Instructions</label>
-      <input type="text" id="cwInstr" dir="auto">
+    <div class="panel" data-type="cross">
+      <label class="f" for="cwTitle">Title</label><input type="text" id="cwTitle" dir="auto">
+      <label class="f" for="cwInstr">Instructions</label><input type="text" id="cwInstr" dir="auto">
       <label class="f" for="cwWords">Words and clues <span class="hint">one per line: word - clue</span></label>
       <textarea id="cwWords" data-rebuild></textarea>
       <label class="check"><input type="checkbox" id="cwLen" checked> Show letter count after each clue</label>
     </div>
 
-    <label class="check" id="marksRow"><input type="checkbox" id="yiMarks" data-rebuild checked> Keep Yiddish letter marks in the grid (אַ אָ פּ פֿ)</label>
+    <div class="panel" data-type="maze">
+      <label class="f" for="mzTitle">Title</label><input type="text" id="mzTitle" dir="auto">
+      <label class="f" for="mzInstr">Instructions</label><input type="text" id="mzInstr" dir="auto">
+      <label class="f" for="mzSize">Difficulty</label>
+      <select id="mzSize" data-rebuild><option value="7">Very easy</option><option value="10" selected>Easy</option><option value="14">Medium</option><option value="19">Hard</option><option value="26">Very hard</option></select>
+    </div>
+
+    <div class="panel" data-type="dots">
+      <label class="f" for="dtTitle">Title</label><input type="text" id="dtTitle" dir="auto">
+      <label class="f" for="dtInstr">Instructions</label><input type="text" id="dtInstr" dir="auto">
+      <label class="f" for="dtShape">Picture</label><select id="dtShape" data-rebuild></select>
+      <label class="f" for="dtLabel">Dots are labeled with</label>
+      <select id="dtLabel"><option value="num">Numbers 1, 2, 3…</option><option value="abc">Letters in alphabet order</option></select>
+      <label class="check"><input type="checkbox" id="dtStart" checked> Mark the first dot</label>
+    </div>
+
+    <div class="panel" data-type="trace">
+      <label class="f" for="trTitle">Title</label><input type="text" id="trTitle" dir="auto">
+      <label class="f" for="trInstr">Instructions</label><input type="text" id="trInstr" dir="auto">
+      <label class="f" for="trWords">Words or short lines <span class="hint">one per line</span></label>
+      <textarea id="trWords"></textarea>
+      <div class="row">
+        <div><label class="f" for="trSize">Letter size</label>
+          <select id="trSize"><option value="44">Small</option><option value="64" selected>Medium</option><option value="90">Large</option></select></div>
+        <div><label class="f" for="trRepeat">Times per line</label>
+          <select id="trRepeat"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+      </div>
+      <label class="f" for="trStyle">Letter style</label>
+      <select id="trStyle"><option value="dots">Dotted outline</option><option value="gray">Light gray to write over</option></select>
+      <label class="check"><input type="checkbox" id="trLines" checked> Writing lines</label>
+      <label class="check"><input type="checkbox" id="trPractice" checked> Empty practice line after each word</label>
+    </div>
+
+    <div class="panel" data-type="code">
+      <label class="f" for="cdTitle">Title</label><input type="text" id="cdTitle" dir="auto">
+      <label class="f" for="cdInstr">Instructions</label><input type="text" id="cdInstr" dir="auto">
+      <label class="f" for="cdWords">Secret message</label>
+      <textarea id="cdWords" data-rebuild style="min-height:100px"></textarea>
+      <label class="f" for="cdMode">Code</label>
+      <select id="cdMode" data-rebuild><option value="sym">Picture symbols</option><option value="num">Numbers, mixed up</option><option value="ord">Numbers in alphabet order</option></select>
+      <label class="check"><input type="checkbox" id="cdOnly" data-rebuild> Key shows only the letters in the message</label>
+    </div>
+
+    <div class="panel" data-type="scramble">
+      <label class="f" for="scTitle">Title</label><input type="text" id="scTitle" dir="auto">
+      <label class="f" for="scInstr">Instructions</label><input type="text" id="scInstr" dir="auto">
+      <label class="f" for="scWords">Words <span class="hint">one per line; add “- hint” if you like</span></label>
+      <textarea id="scWords" data-rebuild></textarea>
+    </div>
+
+    <div class="panel" data-type="missing">
+      <label class="f" for="msTitle">Title</label><input type="text" id="msTitle" dir="auto">
+      <label class="f" for="msInstr">Instructions</label><input type="text" id="msInstr" dir="auto">
+      <label class="f" for="msWords">Words <span class="hint">one per line; add “- hint” if you like</span></label>
+      <textarea id="msWords" data-rebuild></textarea>
+      <label class="f" for="msHide">Letters to leave out</label>
+      <select id="msHide" data-rebuild><option value="1" selected>1 per word</option><option value="2">2 per word</option><option value="half">About half</option></select>
+      <label class="check"><input type="checkbox" id="msBank" checked> Show the missing letters at the bottom</label>
+    </div>
+
+    <div class="panel" data-type="match">
+      <label class="f" for="mtTitle">Title</label><input type="text" id="mtTitle" dir="auto">
+      <label class="f" for="mtInstr">Instructions</label><input type="text" id="mtInstr" dir="auto">
+      <label class="f" for="mtWords">Pairs <span class="hint">one per line: word - meaning</span></label>
+      <textarea id="mtWords" data-rebuild></textarea>
+    </div>
+
+    <div class="panel" data-type="bingo">
+      <label class="f" for="bgTitle">Title</label><input type="text" id="bgTitle" dir="auto">
+      <label class="f" for="bgWords">Words <span class="hint">one per line</span></label>
+      <textarea id="bgWords" data-rebuild></textarea>
+      <div class="row">
+        <div><label class="f" for="bgSize">Card size</label>
+          <select id="bgSize" data-rebuild><option value="3">3 × 3</option><option value="4" selected>4 × 4</option><option value="5">5 × 5</option></select></div>
+        <div><label class="f" for="bgCount">Cards</label>
+          <input type="number" id="bgCount" min="1" max="60" value="30" data-rebuild></div>
+      </div>
+      <label class="f" for="bgPer">Cards per page</label>
+      <select id="bgPer"><option value="1">1 (big)</option><option value="2" selected>2 (cut in half)</option></select>
+      <label class="check"><input type="checkbox" id="bgFree" checked data-rebuild> Free space in the middle (3 × 3 and 5 × 5)</label>
+    </div>
+
+    <label class="check hidden" id="marksRow"><input type="checkbox" id="yiMarks" data-rebuild checked> Keep Yiddish letter marks (אַ אָ פּ פֿ)</label>
     <hr>
     <label class="check"><input type="checkbox" id="optName" checked> Name line at the top</label>
-    <label class="check"><input type="checkbox" id="optKey"> Show answer key <span class="hint">(its own page)</span></label>
+    <label class="check" id="keyRow"><input type="checkbox" id="optKey"> <span id="keyLabel">Answer key</span> <span class="hint">(its own page)</span></label>
     <div class="btns">
       <button class="btn-alt" id="btnNew">New layout</button>
       <button class="btn-main" id="btnPrint">Print</button>
@@ -176,60 +288,96 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
       <button class="btn-alt" id="btnPdf">Download PDF</button>
       <button class="btn-alt" id="btnJpg">Download JPEG</button>
     </div>
-    <p class="small">Downloads are a clean letter-size page, with nothing added at the top or bottom.</p>
+    <p class="small">Downloads are clean letter-size pages, with nothing added at the top or bottom.</p>
     <div id="status" class="status" role="status"></div>
   </section>
 
-  <section class="preview" aria-label="Preview">
-    <div class="sheet" id="sheet"></div>
-    <div class="sheet key" id="keySheet"></div>
-  </section>
+  <section class="preview pagebox" aria-label="Preview" id="pages"></section>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-const STORE='puzzlemaker-v2';
+const STORE='puzzlemaker-v3';
 const NIKUD=/[\u0591-\u05C7]/g;
 const FIN={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
+const HEB22=Array.from('אבגדהוזחטיכלמנסעפצקרשת');
+const AZ=Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+const BINGO_HE='תורה\nמשנה\nגמרא\nשבת\nברכה\nתפילה\nמצוה\nישיבה\nסוכה\nשופר\nמזוזה\nחנוכה\nמצה\nירושלים\nפסח\nפורים\nמגילה\nלולב\nאתרוג\nחלה';
 const LANGS={
-  he:{dir:'rtl',loc:'he',name:'שם:',across:'מאוזן',down:'מאונך',key:'תשובות',easy:'Right-to-left and down',hint:'one per line; nikud is fine',
-    alpha:Array.from('אבגדהוזחטיכלמנסעפצקרשת'),
+  he:{dir:'rtl',loc:'he',name:'שם:',across:'מאוזן',down:'מאונך',key:'תשובות',start:'התחלה',finish:'סוף',free:'חופשי',caller:'רשימת מילים להכרזה',
+    easy:'Right-to-left and down',alpha:HEB22,dotsAlpha:HEB22,
+    order:Array.from('אבגדהוזחטיכךלמםנןסעפףצץקרשת'),core:HEB22,
     def:{wsTitle:'חיפוש מילים',wsInstr:'מצאו וסמנו את כל המילים.',
       wsWords:'תורה\nמשנה\nגמרא\nהלל\nשמאי\nישיבה\nמצוה\nשבת\nברכה\nתפילה',
       cwTitle:'תשבץ',cwInstr:'פתרו את התשבץ בעזרת ההגדרות.',
-      cwWords:'שבת - היום השביעי בשבוע\nתורה - ניתנה בהר סיני\nסוכה - יושבים בה שבעה ימים בתשרי\nשופר - תוקעים בו בראש השנה\nמזוזה - קובעים אותה על פתח הבית\nחנוכה - חג של שמונה ימים\nמצה - אוכלים אותה בפסח\nירושלים - העיר שבה עמד בית המקדש'}},
-  yi:{dir:'rtl',loc:'yi',name:'נאָמען:',across:'אַריבער',down:'אַראָפּ',key:'ענטפֿערס',easy:'Right-to-left and down',hint:'one per line; אַ אָ פּ פֿ are kept',
+      cwWords:'שבת - היום השביעי בשבוע\nתורה - ניתנה בהר סיני\nסוכה - יושבים בה שבעה ימים בתשרי\nשופר - תוקעים בו בראש השנה\nמזוזה - קובעים אותה על פתח הבית\nחנוכה - חג של שמונה ימים\nמצה - אוכלים אותה בפסח\nירושלים - העיר שבה עמד בית המקדש',
+      mzTitle:'מבוך',mzInstr:'מצאו את הדרך מההתחלה ועד הסוף.',
+      dtTitle:'חברו את הנקודות',dtInstr:'חברו את הנקודות לפי הסדר. מה יצא?',
+      trTitle:'עקבו אחרי האותיות',trInstr:'עברו עם העיפרון על הקווים של האותיות.',trWords:'שלום\nתורה\nשבת\nאמא\nאבא',
+      cdTitle:'קוד סודי',cdInstr:'פענחו את ההודעה הסודית בעזרת המפתח.',cdWords:'ואהבת לרעך כמוך',
+      scTitle:'מילים מבולבלות',scInstr:'סדרו את האותיות וכתבו את המילה.',
+      scWords:'שבת - היום השביעי\nתורה - ניתנה בהר סיני\nסוכה - יושבים בה בחג הסוכות\nשופר - תוקעים בו בראש השנה\nמצה - אוכלים אותה בפסח\nחנוכה - חג האורים',
+      msTitle:'אותיות חסרות',msInstr:'השלימו את האותיות החסרות.',msWords:'תורה\nמשנה\nשבת\nברכה\nתפילה\nמצוה\nישיבה\nמזוזה',
+      mtTitle:'התאמה',mtInstr:'מתחו קו מכל מילה אל ההגדרה שלה.',
+      mtWords:'שבת - היום השביעי בשבוע\nשופר - תוקעים בו בראש השנה\nסוכה - יושבים בה שבעה ימים\nמצה - אוכלים אותה בפסח\nמזוזה - קובעים אותה על פתח הבית\nחנוכה - חג של שמונה ימים',
+      bgTitle:'בינגו',bgWords:BINGO_HE}},
+  yi:{dir:'rtl',loc:'yi',name:'נאָמען:',across:'אַריבער',down:'אַראָפּ',key:'ענטפֿערס',start:'אָנהייב',finish:'סוף',free:'פֿרײַ',caller:'ווערטער צום אויסרופֿן',
+    easy:'Right-to-left and down',dotsAlpha:HEB22,
     alpha:['אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פּ','פֿ','צ','ק','ר','ש','ת'],
+    order:['א','אַ','אָ','ב','בֿ','ג','ד','ה','ו','וּ','װ','ז','ח','ט','י','יִ','ײ','ײַ','ױ','כּ','כ','ך','ל','מ','ם','נ','ן','ס','ע','פּ','פ','פֿ','ף','צ','ץ','ק','ר','ש','שׂ','תּ','ת'],
+    core:['א','אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פּ','פֿ','צ','ק','ר','ש','ת'],
     def:{wsTitle:'זוכט די ווערטער',wsInstr:'געפֿינט און צייכנט אָן אַלע ווערטער.',
       wsWords:'תורה\nמשנה\nישיבה\nמצוה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
       cwTitle:'קרייצווערטער',cwInstr:'לייזט אויס דאָס קרייצווערטער מיט די אָנווייזונגען.',
-      cwWords:'שבת - דער זיבעטער טאָג פֿון דער וואָך\nתורה - געגעבן אויפֿן באַרג סיני\nסוכה - מען זיצט אין איר זיבן טעג\nשופֿר - מען בלאָזט אים ראָש השנה\nמזוזה - מען קלאַפּט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט\nמצה - מען עסט זי פּסח\nירושלים - די שטאָט פֿון בית המקדש'}},
-  en:{dir:'ltr',loc:'en',name:'Name:',across:'Across',down:'Down',key:'Answer Key',easy:'Left-to-right and down',hint:'one per line',
-    alpha:Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+      cwWords:'שבת - דער זיבעטער טאָג פֿון דער וואָך\nתורה - געגעבן אויפֿן באַרג סיני\nסוכה - מען זיצט אין איר זיבן טעג\nשופֿר - מען בלאָזט אים ראָש השנה\nמזוזה - מען קלאַפּט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט\nמצה - מען עסט זי פּסח\nירושלים - די שטאָט פֿון בית המקדש',
+      mzTitle:'לאַבירינט',mzInstr:'געפֿינט דעם וועג פֿון אָנהייב ביזן סוף.',
+      dtTitle:'פֿאַרבינדט די פּינטלעך',dtInstr:'פֿאַרבינדט די פּינטלעך לויט דער ריי. וואָס קומט אַרויס?',
+      trTitle:'שרײַבט איבער',trInstr:'פֿירט מיטן בלײַער איבער די אותיות.',trWords:'שלום\nתורה\nשבת\nמאַמע\nטאַטע',
+      cdTitle:'געהיימער קאָד',cdInstr:'לייענט אויס די געהיימע ידיעה מיט דעם שליסל.',cdWords:'ואהבת לרעך כמוך',
+      scTitle:'צעמישטע ווערטער',scInstr:'שטעלט אויס די אותיות און שרײַבט דאָס וואָרט.',
+      scWords:'שבת - דער זיבעטער טאָג\nתורה - געגעבן אויפֿן באַרג סיני\nסוכה - מען זיצט אין איר סוכּות\nשופֿר - מען בלאָזט אים ראָש השנה\nמצה - מען עסט זי פּסח\nחנוכה - מען צינדט ליכט אַכט טעג',
+      msTitle:'פֿעלנדיקע אותיות',msInstr:'שרײַבט אַרײַן די פֿעלנדיקע אותיות.',msWords:'תורה\nמשנה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
+      mtTitle:'צופּאַסן',mtInstr:'ציט אַ שטריך פֿון יעדן וואָרט צו זײַן טײַטש.',
+      mtWords:'שבת - דער זיבעטער טאָג פֿון דער וואָך\nשופֿר - מען בלאָזט אים ראָש השנה\nסוכה - מען זיצט אין איר זיבן טעג\nמצה - מען עסט זי פּסח\nמזוזה - מען קלאַפּט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט',
+      bgTitle:'בינגאָ',bgWords:BINGO_HE}},
+  en:{dir:'ltr',loc:'en',name:'Name:',across:'Across',down:'Down',key:'Answer Key',start:'Start',finish:'Finish',free:'FREE',caller:'Caller list',
+    easy:'Left-to-right and down',alpha:AZ,dotsAlpha:AZ,order:AZ,core:AZ,
     def:{wsTitle:'Word Search',wsInstr:'Find and circle all the words.',
       wsWords:'Torah\nMishnah\nGemara\nYeshiva\nMitzvah\nShabbos\nBracha\nTefillah\nShofar\nMenorah',
       cwTitle:'Crossword',cwInstr:'Use the clues to solve the puzzle.',
-      cwWords:'Shabbos - The seventh day of the week\nTorah - Given at Har Sinai\nSukkah - We sit in it for seven days in Tishrei\nShofar - Blown on Rosh Hashanah\nMezuzah - Put on the doorpost of the house\nChanukah - A holiday of eight days\nMatzah - Eaten on Pesach\nYerushalayim - The city where the Beis Hamikdash stood'}}
+      cwWords:'Shabbos - The seventh day of the week\nTorah - Given at Har Sinai\nSukkah - We sit in it for seven days in Tishrei\nShofar - Blown on Rosh Hashanah\nMezuzah - Put on the doorpost of the house\nChanukah - A holiday of eight days\nMatzah - Eaten on Pesach\nYerushalayim - The city where the Beis Hamikdash stood',
+      mzTitle:'Maze',mzInstr:'Find the way from start to finish.',
+      dtTitle:'Connect the Dots',dtInstr:'Connect the dots in order. What do you see?',
+      trTitle:'Trace the Words',trInstr:'Trace over the letters with your pencil.',trWords:'shalom\nTorah\nShabbos\nMommy\nTatty',
+      cdTitle:'Secret Code',cdInstr:'Use the key to decode the secret message.',cdWords:'Love your fellow as yourself',
+      scTitle:'Word Scramble',scInstr:'Unscramble the letters and write the word.',
+      scWords:'Shabbos - The seventh day\nTorah - Given at Har Sinai\nSukkah - We sit in it on Sukkos\nShofar - Blown on Rosh Hashanah\nMatzah - Eaten on Pesach\nChanukah - The festival of lights',
+      msTitle:'Missing Letters',msInstr:'Fill in the missing letters.',msWords:'Torah\nMishnah\nShabbos\nBracha\nTefillah\nMitzvah\nYeshiva\nMezuzah',
+      mtTitle:'Matching',mtInstr:'Draw a line from each word to its meaning.',
+      mtWords:'Shabbos - The seventh day of the week\nShofar - Blown on Rosh Hashanah\nSukkah - We sit in it for seven days\nMatzah - Eaten on Pesach\nMezuzah - Put on the doorpost\nChanukah - A holiday of eight days',
+      bgTitle:'BINGO',bgWords:'Torah\nMishnah\nGemara\nShabbos\nBracha\nTefillah\nMitzvah\nYeshiva\nSukkah\nShofar\nMezuzah\nChanukah\nMatzah\nYerushalayim\nPesach\nPurim\nMegillah\nLulav\nEsrog\nChallah'}}
 };
-const CONTENT=['wsTitle','wsInstr','wsWords','cwTitle','cwInstr','cwWords'];
-const SHARED=['wsSize','wsLevel','wsBank','wsUnfinal','cwLen','optName','optKey','yiMarks'];
+const TYPES=[['search','Word search','ws'],['cross','Crossword','cw'],['maze','Maze','mz'],['dots','Connect the dots','dt'],['trace','Tracing','tr'],['code','Secret code','cd'],['scramble','Word scramble','sc'],['missing','Missing letters','ms'],['match','Matching','mt'],['bingo','Bingo','bg']];
+const CONTENT=[];TYPES.forEach(([,,p])=>['Title','Instr','Words'].forEach(s=>{if(document.getElementById(p+s))CONTENT.push(p+s)}));
+const SHARED=['wsSize','wsLevel','wsBank','wsUnfinal','cwLen','mzSize','dtShape','dtLabel','dtStart','trSize','trRepeat','trStyle','trLines','trPractice','cdMode','cdOnly','msHide','msBank','bgSize','bgCount','bgPer','bgFree','optName','optKey','yiMarks'];
 const FIELDS=CONTENT.concat(SHARED);
-let mode='search',lang='he',perLang={};
-const S={search:null,cross:null};
-const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let type='search',lang='he',perLang={};
+const S={};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rnd=n=>Math.floor(Math.random()*n);
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 const L=()=>LANGS[lang];
+const rtl=()=>L().dir==='rtl';
 
-/* Yiddish marks that make a different letter: base letter -> allowed marks */
 const YIKEEP={'א':'\u05B7\u05B8','פ':'\u05BC\u05BF','ב':'\u05BF','כ':'\u05BC','ת':'\u05BC','ש':'\u05C2','ו':'\u05BC','י':'\u05B4','ײ':'\u05B7'};
+const yiMarksOn=()=>lang==='yi'&&$('yiMarks').checked;
 function letters(w,unfinal){
   if(lang==='en')return Array.from(w.toUpperCase().replace(/[^A-Z]/g,''));
-  let s=w.normalize('NFC');
-  let out;
-  if(lang==='yi'&&$('yiMarks').checked){
+  const s=w.normalize('NFC');let out;
+  if(yiMarksOn()){
     out=[];
     for(const m of s.matchAll(/([\u05D0-\u05EA\u05F0-\u05F2])([\u0591-\u05C7]*)/g)){
       const keep=YIKEEP[m[1]]||'';
@@ -239,45 +387,67 @@ function letters(w,unfinal){
   if(unfinal)out=out.map(c=>FIN[c[0]]?FIN[c[0]]+c.slice(1):c);
   return out;
 }
+function lines(id){return $(id).value.split('\n').map(s=>s.trim()).filter(Boolean)}
+function splitClue(line){const m=line.match(/^(.+?)\s*(?:\t|\s[-–—]\s|[-–—]\s|:)\s*(.*)$/);return m?[m[1].trim(),m[2].trim()]:[line.trim(),'']}
 
-/* ---------- storage ---------- */
-function grabContent(){const o={};CONTENT.forEach(id=>o[id]=$(id).value);return o}
-function putContent(o){CONTENT.forEach(id=>$(id).value=(o&&o[id]!==undefined)?o[id]:L().def[id])}
-function save(){
-  try{perLang[lang]=grabContent();const o={mode,lang,perLang};SHARED.forEach(id=>{const el=$(id);o[id]=el.type==='checkbox'?el.checked:el.value});localStorage.setItem(STORE,JSON.stringify(o))}catch(e){}
+/* ---------- shared sheet parts ---------- */
+function head(title,instr){
+  return `<div class="top"><h1>${esc(title)}</h1>${$('optName').checked?`<div class="name">${L().name}<span></span></div>`:''}</div>${instr&&instr.trim()?`<p class="instr">${esc(instr)}</p>`:''}`;
 }
-function load(){
-  try{
-    let o=JSON.parse(localStorage.getItem(STORE)||'null');
-    if(!o){const old=JSON.parse(localStorage.getItem('hebpuzzle-v1')||'null');
-      if(old){o={mode:old.mode,lang:'he',perLang:{he:{}}};FIELDS.forEach(id=>{if(old[id]===undefined)return;if(CONTENT.includes(id))o.perLang.he[id]=old[id];else o[id]=old[id]})}}
-    if(!o)return;
-    SHARED.forEach(id=>{if(o[id]===undefined)return;const el=$(id);if(el.type==='checkbox')el.checked=o[id];else el.value=o[id]});
-    if(o.mode)mode=o.mode;if(o.lang&&LANGS[o.lang])lang=o.lang;perLang=o.perLang||{};
-  }catch(e){}
-}
+const keyHead=(t,sub)=>`<div class="top"><div><h1>${esc(t)}</h1><h2>${esc(sub||L().key)}</h2></div></div>`;
+const val=id=>$(id).value;
+const emptyOut=msg=>({pages:[`<p class="empty">${esc(msg)}</p>`],keys:[]});
+function list(a){return a.map(x=>`<span class="he">${esc(x)}</span>`).join(', ')}
+
+const poly=(n,R1,R2,cx,cy,rot)=>{const p=[];for(let i=0;i<n*2;i++){const r=i%2?R2:R1,a=(rot+i*180/n)*Math.PI/180;p.push([+(cx+r*Math.cos(a)).toFixed(1),+(cy+r*Math.sin(a)).toFixed(1)])}return p};
+const flame=x=>({line:[[x,17],[x-2.6,12],[x,5],[x+2.6,12],[x,17]]});
+const SHAPES={
+ magen:{n:['מגן דוד','מגן דוד','Magen David'],pts:poly(6,48,27.7,50,52,-90),closed:true,extra:[]},
+ menorah:{n:['מנורה','מנורה','Menorah'],closed:false,
+   pts:[[12,20],[13,34],[18,46],[28,54],[40,58],[50,59],[60,58],[72,54],[82,46],[87,34],[88,20]],
+   extra:[{line:[[24,20],[26,33],[32,43],[41,49],[50,51]]},{line:[[76,20],[74,33],[68,43],[59,49],[50,51]]},
+     {line:[[36,20],[38,31],[43,39],[50,42]]},{line:[[64,20],[62,31],[57,39],[50,42]]},
+     {line:[[50,20],[50,88]]},{line:[[34,96],[41,88],[59,88],[66,96],[34,96]]},
+     flame(12),flame(24),flame(36),flame(50),flame(64),flame(76),flame(88)]},
+ shofar:{n:['שופר','שופֿר','Shofar'],closed:true,
+   pts:[[6,56],[20,59],[36,63],[50,62],[63,56],[73,45],[79,32],[82,18],[98,26],[92,40],[86,54],[76,66],[63,75],[48,79],[33,77],[18,71],[6,62]],extra:[]},
+ torah:{n:['ספר תורה','ספֿר תורה','Sefer Torah'],closed:true,
+   pts:[[17,3],[21,3],[21,12],[25,14],[25,20],[75,20],[75,14],[79,12],[79,3],[83,3],[83,12],[87,14],[87,86],[83,88],[83,97],[79,97],[79,88],[75,86],[75,80],[25,80],[25,86],[21,88],[21,97],[17,97],[17,88],[13,86],[13,14],[17,12]],
+   extra:[{line:[[25,20],[25,80]]},{line:[[75,20],[75,80]]},{line:[[33,32],[67,32]]},{line:[[33,42],[67,42]]},{line:[[33,52],[67,52]]},{line:[[33,62],[67,62]]}]},
+ candle:{n:['נר','ליכט','Candle'],closed:true,
+   pts:[[38,95],[38,40],[48,40],[46,32],[44,24],[47,16],[50,8],[53,16],[56,24],[54,32],[52,40],[62,40],[62,95]],
+   extra:[{line:[[50,40],[50,33]]},{line:[[26,95],[74,95]]}]},
+ kos:{n:['כוס קידוש','קידוש־בעכער','Kiddush cup'],closed:true,
+   pts:[[30,12],[70,12],[68,34],[61,47],[54,52],[54,76],[67,83],[70,91],[30,91],[33,83],[46,76],[46,52],[39,47],[32,34]],extra:[{line:[[31,22],[69,22]]},{line:[[46,52],[54,52]]}]},
+ dreidel:{n:['סביבון','דריידל','Dreidel'],closed:true,
+   pts:[[50,96],[27,72],[27,36],[44,36],[44,12],[56,12],[56,36],[73,36],[73,72]],extra:[{line:[[27,72],[73,72]]}]},
+ apple:{n:['תפוח','עפּל','Apple'],closed:true,
+   pts:[[50,30],[60,23],[72,23],[82,31],[88,45],[87,61],[80,76],[68,88],[58,91],[50,88],[42,91],[32,88],[20,76],[13,61],[12,45],[18,31],[28,23],[40,23]],
+   extra:[{line:[[50,30],[51,20],[54,11]]},{line:[[53,17],[62,9],[73,9],[64,17],[53,17]]}]},
+ fish:{n:['דג','פֿיש','Fish'],closed:true,
+   pts:[[8,50],[17,40],[30,32],[45,28],[58,30],[70,37],[78,45],[92,30],[96,33],[88,50],[96,67],[92,70],[78,55],[70,63],[58,70],[45,72],[30,68],[17,60]],
+   extra:[{circle:[23,45,2.2]},{line:[[38,38],[42,50],[38,62]]}]},
+ house:{n:['בית','הויז','House'],closed:true,
+   pts:[[20,92],[20,50],[8,50],[50,12],[64,24.6],[64,12],[74,12],[74,33.6],[92,50],[80,50],[80,92]],
+   extra:[{line:[[42,92],[42,70],[58,70],[58,92]]},{line:[[27,58],[37,58],[37,68],[27,68],[27,58]]},{line:[[63,58],[73,58],[73,68],[63,68],[63,58]]}]},
+ heart:{n:['לב','האַרץ','Heart'],closed:true,pts:[[50,30],[58,20],[70,16],[82,20],[89,30],[89,44],[82,58],[72,70],[61,81],[50,92],[39,81],[28,70],[18,58],[11,44],[11,30],[18,20],[30,16],[42,20]],extra:[]},
+ star:{n:['כוכב','שטערן','Star'],pts:poly(5,48,20,50,54,-90),closed:true,extra:[]}
+};
 
 /* ---------- word search ---------- */
-const DIRS={easy:[[0,1],[1,0]],medium:[[0,1],[1,0],[1,1],[1,-1]],
-  hard:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]]};
-function parseSearch(){
+const DIRS={easy:[[0,1],[1,0]],medium:[[0,1],[1,0],[1,1],[1,-1]],hard:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]]};
+function buildSearch(){
   const seen=new Set(),words=[],skipped=[];
   $('wsWords').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean).forEach(d=>{
     const ch=letters(d,lang!=='en'&&$('wsUnfinal').checked);
     if(ch.length<2){skipped.push(d);return}
-    const k=ch.join('|');if(seen.has(k))return;seen.add(k);
-    words.push({display:d,ch});
+    const k=ch.join('|');if(seen.has(k))return;seen.add(k);words.push({display:d,ch});
   });
-  return {words,skipped};
-}
-function buildSearch(){
-  const {words,skipped}=parseSearch();
   if(!words.length)return {empty:true,skipped};
-  const longest=Math.max(...words.map(w=>w.ch.length));
-  const total=words.reduce((s,w)=>s+w.ch.length,0);
-  const sel=$('wsSize').value;
+  const longest=Math.max(...words.map(w=>w.ch.length)),total=words.reduce((s,w)=>s+w.ch.length,0);
+  const sel=val('wsSize');
   const n=sel==='auto'?Math.min(20,Math.max(8,longest+1,Math.ceil(Math.sqrt(total*2.1)))):Math.max(+sel,longest);
-  const dirs=DIRS[$('wsLevel').value];
+  const dirs=DIRS[val('wsLevel')];
   let best=null;
   for(let t=0;t<30;t++){
     const g=Array.from({length:n},()=>Array(n).fill(null)),placed=[],missed=[];
@@ -285,16 +455,13 @@ function buildSearch(){
     for(const w of order){
       const Ln=w.ch.length,opts=[];
       for(let r=0;r<n;r++)for(let c=0;c<n;c++)for(const [dr,dc] of dirs){
-        const er=r+dr*(Ln-1),ec=c+dc*(Ln-1);
-        if(er<0||er>=n||ec<0||ec>=n)continue;
+        const er=r+dr*(Ln-1),ec=c+dc*(Ln-1);if(er<0||er>=n||ec<0||ec>=n)continue;
         let ok=true,ov=0;
         for(let k=0;k<Ln;k++){const x=g[r+dr*k][c+dc*k];if(x){if(x!==w.ch[k]){ok=false;break}ov++}}
         if(ok&&ov<Ln)opts.push({r,c,dr,dc,ov});
       }
       if(!opts.length){missed.push(w);continue}
-      const withOv=opts.filter(o=>o.ov>0);
-      const pool=withOv.length&&Math.random()<.55?withOv:opts;
-      const o=pool[rnd(pool.length)];
+      const withOv=opts.filter(o=>o.ov>0),pool=withOv.length&&Math.random()<.55?withOv:opts,o=pool[rnd(pool.length)];
       for(let k=0;k<Ln;k++)g[o.r+o.dr*k][o.c+o.dc*k]=w.ch[k];
       placed.push({...o,L:Ln,w});
     }
@@ -302,102 +469,70 @@ function buildSearch(){
     if(!missed.length)break;
   }
   let alpha=L().alpha;
-  if(lang==='yi'&&!$('yiMarks').checked)alpha=alpha.map(c=>c[0]).filter((c,i,a)=>a.indexOf(c)===i);
+  if(lang==='yi'&&!$('yiMarks').checked)alpha=[...new Set(alpha.map(c=>c[0]))];
   const fill=alpha.concat(words.flatMap(w=>w.ch));
   best.g=best.g.map(row=>row.map(x=>x||fill[rnd(fill.length)]));
-  best.words=words;best.skipped=skipped;
-  return best;
+  best.words=words;best.skipped=skipped;return best;
 }
 function searchGrid(s,key){
-  const n=s.n,cell=Math.max(24,Math.min(46,Math.floor(640/n))),W=n*cell,rtl=L().dir==='rtl';
+  const n=s.n,cell=Math.max(24,Math.min(46,Math.floor(640/n))),W=n*cell,R=rtl();
   let svg='';
-  if(key){
-    svg=`<svg width="${W}" height="${W}" viewBox="0 0 ${W} ${W}">`+s.placed.map(p=>{
-      const x=c=>(rtl?n-1-c:c)*cell+cell/2,y=r=>r*cell+cell/2;
-      const er=p.r+p.dr*(p.L-1),ec=p.c+p.dc*(p.L-1);
-      return `<line x1="${x(p.c)}" y1="${y(p.r)}" x2="${x(ec)}" y2="${y(er)}" stroke="rgba(31,92,140,0.22)" stroke-width="${cell*.74}" stroke-linecap="round"/>`;
-    }).join('')+'</svg>';
-  }
+  if(key)svg=`<svg width="${W}" height="${W}" viewBox="0 0 ${W} ${W}">`+s.placed.map(p=>{
+    const x=c=>(R?n-1-c:c)*cell+cell/2,y=r=>r*cell+cell/2,er=p.r+p.dr*(p.L-1),ec=p.c+p.dc*(p.L-1);
+    return `<line x1="${x(p.c)}" y1="${y(p.r)}" x2="${x(ec)}" y2="${y(er)}" stroke="rgba(31,92,140,0.22)" stroke-width="${cell*.74}" stroke-linecap="round"/>`;}).join('')+'</svg>';
   const cells=s.g.flat().map(ch=>`<div>${ch}</div>`).join('');
-  return `<div class="center"><div class="wsframe"><div class="wsinner" style="width:${W}px;height:${W}px">${svg}
-    <div class="wsgrid" style="grid-template-columns:repeat(${n},${cell}px);grid-auto-rows:${cell}px;font-size:${Math.round(cell*.62)}px">${cells}</div></div></div></div>`;
+  return `<div class="center"><div class="wsframe"><div class="wsinner" style="width:${W}px;height:${W}px">${svg}<div class="wsgrid" style="grid-template-columns:repeat(${n},${cell}px);grid-auto-rows:${cell}px;font-size:${Math.round(cell*.62)}px">${cells}</div></div></div></div>`;
 }
-function renderSearch(){
-  const s=S.search;
-  if(s.empty){showEmpty('Add at least one word to make a word search.');setStatus(s.skipped);return}
+function viewSearch(s){
+  if(s.empty)return {...emptyOut('Add at least one word to make a word search.'),skipped:s.skipped};
   let bank='';
-  if($('wsBank').checked){
-    const list=s.words.filter(w=>!s.missed.includes(w)).map(w=>w.display).sort((a,b)=>a.localeCompare(b,L().loc));
-    bank=`<div class="wordbank">${list.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`;
-  }
-  $('sheet').innerHTML=head($('wsTitle').value,$('wsInstr').value)+searchGrid(s,false)+bank;
-  $('keySheet').innerHTML=keyHead($('wsTitle').value)+searchGrid(s,true);
+  if($('wsBank').checked){const l=s.words.filter(w=>!s.missed.includes(w)).map(w=>w.display).sort((a,b)=>a.localeCompare(b,L().loc));
+    bank=`<div class="wordbank">${l.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`;}
   const miss=s.missed.map(w=>w.display);
-  setStatus(s.skipped,miss.length?`Couldn’t fit ${list(miss)}. Choose a bigger grid or let words run more ways.`:`All ${s.placed.length} words are in the grid.`,!miss.length);
+  return {pages:[head(val('wsTitle'),val('wsInstr'))+searchGrid(s,false)+bank],keys:[keyHead(val('wsTitle'))+searchGrid(s,true)],skipped:s.skipped,
+    msg:miss.length?`Couldn’t fit ${list(miss)}. Choose a bigger grid or let words run more ways.`:`All ${s.placed.length} words are in the grid.`,ok:!miss.length};
 }
 
 /* ---------- crossword ---------- */
-function parseCross(){
-  const seen=new Set(),entries=[],skipped=[];
-  $('cwWords').value.split('\n').map(s=>s.trim()).filter(Boolean).forEach(line=>{
-    const m=line.match(/^(.+?)\s*(?:\t|\s[-–—]\s|[-–—]\s|:)\s*(.*)$/);
-    const word=(m?m[1]:line).trim(),clue=m?m[2].trim():'';
-    const ch=letters(word,false);
-    if(ch.length<2){skipped.push(word);return}
-    const k=ch.join('|');if(seen.has(k))return;seen.add(k);
-    entries.push({display:word,clue,ch});
-  });
-  return {entries,skipped};
-}
 function tryCross(order){
-  const G=new Map(),K=(r,c)=>r+','+c,placed=[],missed=[];
-  let b={r0:0,r1:0,c0:0,c1:0};
+  const G=new Map(),K=(r,c)=>r+','+c,placed=[],missed=[];let b={r0:0,r1:0,c0:0,c1:0};
   const step=d=>d==='a'?[0,1]:[1,0];
   const put=(e,r,c,d)=>{const [dr,dc]=step(d);
     e.ch.forEach((ch,k)=>{const key=K(r+dr*k,c+dc*k),cell=G.get(key)||{ch,dirs:''};cell.dirs+=d;G.set(key,cell)});
-    b={r0:Math.min(b.r0,r),c0:Math.min(b.c0,c),r1:Math.max(b.r1,r+dr*(e.ch.length-1)),c1:Math.max(b.c1,c+dc*(e.ch.length-1))};
-    placed.push({e,r,c,d});};
+    b={r0:Math.min(b.r0,r),c0:Math.min(b.c0,c),r1:Math.max(b.r1,r+dr*(e.ch.length-1)),c1:Math.max(b.c1,c+dc*(e.ch.length-1))};placed.push({e,r,c,d});};
   const fits=(e,r,c,d)=>{const [dr,dc]=step(d),Ln=e.ch.length;
-    if(G.has(K(r-dr,c-dc))||G.has(K(r+dr*Ln,c+dc*Ln)))return -1;
-    let inter=0;
+    if(G.has(K(r-dr,c-dc))||G.has(K(r+dr*Ln,c+dc*Ln)))return -1;let inter=0;
     for(let k=0;k<Ln;k++){const rr=r+dr*k,cc=c+dc*k,cell=G.get(K(rr,cc));
       if(cell){if(cell.ch!==e.ch[k]||cell.dirs.includes(d))return -1;inter++}
       else if(G.has(K(rr+dc,cc+dr))||G.has(K(rr-dc,cc-dr)))return -1;}
     return inter;};
-  const placeOne=e=>{
-    const cands=[];
+  const placeOne=e=>{const cands=[];
     for(const p of placed){const nd=p.d==='a'?'d':'a',[pdr,pdc]=step(p.d);
       p.e.ch.forEach((pc,i)=>e.ch.forEach((ec,j)=>{if(pc!==ec)return;
         const pr=p.r+pdr*i,pcc=p.c+pdc*i,r=nd==='a'?pr:pr-j,c=nd==='a'?pcc-j:pcc,sc=fits(e,r,c,nd);
         if(sc>0){const [dr,dc]=step(nd),Ln=e.ch.length;
           const h=Math.max(b.r1,r+dr*(Ln-1))-Math.min(b.r0,r)+1,w=Math.max(b.c1,c+dc*(Ln-1))-Math.min(b.c0,c)+1;
           cands.push({r,c,d:nd,score:sc*12-Math.max(h,w)*2-(h+w)*.5+Math.random()*4});}}));}
-    if(!cands.length)return false;
-    cands.sort((a,b)=>b.score-a.score);put(e,cands[0].r,cands[0].c,cands[0].d);return true;};
+    if(!cands.length)return false;cands.sort((a,b)=>b.score-a.score);put(e,cands[0].r,cands[0].c,cands[0].d);return true;};
   order.forEach((e,i)=>{if(i===0)put(e,0,0,Math.random()<.5?'a':'d');else if(!placeOne(e))missed.push(e)});
   for(let pass=0;pass<2;pass++)for(let i=missed.length-1;i>=0;i--)if(placeOne(missed[i]))missed.splice(i,1);
-  const inter=[...G.values()].filter(c=>c.dirs.length>1).length;
-  return {G,placed,missed,b,inter};
+  return {G,placed,missed,b,inter:[...G.values()].filter(c=>c.dirs.length>1).length};
 }
 function buildCross(){
-  const {entries,skipped}=parseCross();
+  const seen=new Set(),entries=[],skipped=[];
+  lines('cwWords').forEach(line=>{const [word,clue]=splitClue(line),ch=letters(word,false);
+    if(ch.length<2){skipped.push(word);return}const k=ch.join('|');if(seen.has(k))return;seen.add(k);entries.push({display:word,clue,ch});});
   if(!entries.length)return {empty:true,skipped};
   let best=null;
-  for(let t=0;t<120;t++){
-    const order=entries.slice().sort((a,b)=>b.ch.length-a.ch.length+(t?(Math.random()-.5)*4:0));
-    const res=tryCross(order);
-    const size=Math.max(res.b.r1-res.b.r0,res.b.c1-res.b.c0);
-    res.rank=-res.missed.length*1000-size*3+res.inter*2;
-    if(!best||res.rank>best.rank)best=res;
-  }
-  const {b}=best,H=b.r1-b.r0+1,W=b.c1-b.c0+1;
-  const starts=new Map();
+  for(let t=0;t<120;t++){const order=entries.slice().sort((a,b)=>b.ch.length-a.ch.length+(t?(Math.random()-.5)*4:0));
+    const res=tryCross(order),size=Math.max(res.b.r1-res.b.r0,res.b.c1-res.b.c0);
+    res.rank=-res.missed.length*1000-size*3+res.inter*2;if(!best||res.rank>best.rank)best=res;}
+  const {b}=best,H=b.r1-b.r0+1,W=b.c1-b.c0+1,starts=new Map();
   best.placed.forEach(p=>{p.r-=b.r0;p.c-=b.c0;const k=p.r+','+p.c;if(!starts.has(k))starts.set(k,[]);starts.get(k).push(p)});
   const grid=Array.from({length:H},()=>Array(W).fill(null));
   best.G.forEach((cell,k)=>{const [r,c]=k.split(',').map(Number);grid[r-b.r0][c-b.c0]={ch:cell.ch,num:null}});
   let num=0;const across=[],down=[];
-  for(let r=0;r<H;r++)for(let c=0;c<W;c++){const ps=starts.get(r+','+c);if(!ps)continue;num++;grid[r][c].num=num;
-    ps.forEach(p=>(p.d==='a'?across:down).push({num,e:p.e}));}
+  for(let r=0;r<H;r++)for(let c=0;c<W;c++){const ps=starts.get(r+','+c);if(!ps)continue;num++;grid[r][c].num=num;ps.forEach(p=>(p.d==='a'?across:down).push({num,e:p.e}));}
   return {grid,H,W,across,down,missed:best.missed,skipped};
 }
 function crossGrid(s,key){
@@ -405,77 +540,287 @@ function crossGrid(s,key){
   const cells=s.grid.flatMap((row,r)=>row.map((x,c)=>[x,r,c])).map(([x,r,c])=>x?`<div class="box" style="${r===0||!s.grid[r-1][c]?'border-top-width:1.5px;':''}${c===0||!s.grid[r][c-1]?'border-inline-start-width:1.5px;':''}">${x.num?`<i style="font-size:${Math.max(9,Math.round(cell*.3))}px">${x.num}</i>`:''}${key?x.ch:''}</div>`:'<div></div>').join('');
   return `<div class="cwgrid" style="grid-template-columns:repeat(${s.W},${cell}px);grid-auto-rows:${cell}px;font-size:${Math.round(cell*.58)}px;width:${s.W*cell}px">${cells}</div>`;
 }
-function renderCross(){
-  const s=S.cross;
-  if(s.empty){showEmpty('Add at least one line like “word - clue” to make a crossword.');setStatus(s.skipped);return}
+function viewCross(s){
+  if(s.empty)return {...emptyOut('Add at least one line like “word - clue” to make a crossword.'),skipped:s.skipped};
   const showLen=$('cwLen').checked;
   const li=x=>`<li><b>${x.num}.</b><span>${esc(x.e.clue||'')}${showLen?` <span class="len">(${x.e.ch.length})</span>`:''}</span></li>`;
   const clues=`<div class="clues"><div><h3>${L().across}</h3><ol>${s.across.map(li).join('')}</ol></div><div><h3>${L().down}</h3><ol>${s.down.map(li).join('')}</ol></div></div>`;
-  $('sheet').innerHTML=head($('cwTitle').value,$('cwInstr').value)+crossGrid(s,false)+clues;
-  $('keySheet').innerHTML=keyHead($('cwTitle').value)+crossGrid(s,true);
   const miss=s.missed.map(e=>e.display),n=s.across.length+s.down.length;
-  setStatus(s.skipped,miss.length?`Couldn’t connect ${list(miss)}. It needs a letter in common with the other words. Press New layout to retry, or add a word that crosses it.`:`All ${n} words are connected.`,!miss.length);
+  return {pages:[head(val('cwTitle'),val('cwInstr'))+crossGrid(s,false)+clues],keys:[keyHead(val('cwTitle'))+crossGrid(s,true)],skipped:s.skipped,
+    msg:miss.length?`Couldn’t connect ${list(miss)}. It needs a letter in common with the other words. Press New layout to retry, or add a word that crosses it.`:`All ${n} words are connected.`,ok:!miss.length};
 }
 
-/* ---------- shared ---------- */
-function head(title,instr){
-  return `<div class="top"><h1>${esc(title)}</h1>${$('optName').checked?`<div class="name">${L().name}<span></span></div>`:''}</div>${instr.trim()?`<p class="instr">${esc(instr)}</p>`:''}`;
+/* ---------- maze ---------- */
+function buildMaze(){
+  const cols=+val('mzSize'),rows=Math.round(cols*1.25),R=rtl();
+  const W=Array.from({length:rows*cols},()=>[1,1,1,1]); /* top right bottom left */
+  const seen=new Uint8Array(rows*cols),stack=[0];seen[0]=1;
+  const D=[[-1,0,0,2],[0,1,1,3],[1,0,2,0],[0,-1,3,1]];
+  while(stack.length){
+    const cur=stack[stack.length-1],r=Math.floor(cur/cols),c=cur%cols;
+    const nb=D.filter(([dr,dc])=>{const rr=r+dr,cc=c+dc;return rr>=0&&rr<rows&&cc>=0&&cc<cols&&!seen[rr*cols+cc]});
+    if(!nb.length){stack.pop();continue}
+    const [dr,dc,w,ow]=nb[rnd(nb.length)],nx=(r+dr)*cols+c+dc;
+    W[cur][w]=0;W[nx][ow]=0;seen[nx]=1;stack.push(nx);
+  }
+  const sc=R?cols-1:0,ec=R?0:cols-1,start=sc,end=(rows-1)*cols+ec;
+  const prev=new Int32Array(rows*cols).fill(-1),q=[start];prev[start]=start;
+  while(q.length){const cur=q.shift();if(cur===end)break;const r=Math.floor(cur/cols),c=cur%cols;
+    D.forEach(([dr,dc,w])=>{if(W[cur][w])return;const nx=(r+dr)*cols+c+dc;if(prev[nx]<0){prev[nx]=cur;q.push(nx)}});}
+  const path=[];for(let x=end;;x=prev[x]){path.unshift(x);if(x===start)break}
+  return {rows,cols,W,sc,ec,path};
 }
-const keyHead=t=>`<div class="top"><div><h1>${esc(t)}</h1><h2>${L().key}</h2></div></div>`;
-function list(a){return a.map(x=>`<span class="he">${esc(x)}</span>`).join(', ')}
-function showEmpty(msg){$('sheet').innerHTML=`<p class="empty">${esc(msg)}</p>`;$('keySheet').innerHTML=''}
+function mazeSvg(m,key){
+  const cell=Math.floor(Math.min(680/m.cols,740/m.rows)),pad=4,w=m.cols*cell+pad*2,h=m.rows*cell+pad*2,sw=Math.max(2,cell*.09).toFixed(1);
+  let d='';
+  for(let r=0;r<m.rows;r++)for(let c=0;c<m.cols;c++){const x=pad+c*cell,y=pad+r*cell,wl=m.W[r*m.cols+c];
+    if(wl[0]&&!(r===0&&c===m.sc))d+=`M${x} ${y}h${cell}`;
+    if(wl[3])d+=`M${x} ${y}v${cell}`;
+    if(c===m.cols-1&&wl[1])d+=`M${x+cell} ${y}v${cell}`;
+    if(r===m.rows-1&&wl[2]&&c!==m.ec)d+=`M${x} ${y+cell}h${cell}`;}
+  let sol='';
+  if(key){const pts=m.path.map(i=>[pad+(i%m.cols)*cell+cell/2,pad+Math.floor(i/m.cols)*cell+cell/2]);
+    pts.unshift([pts[0][0],0]);pts.push([pts[pts.length-1][0],h]);
+    sol=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="rgba(192,57,43,0.55)" stroke-width="${(cell*.3).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round"/>`;}
+  return {w,svg:`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${sol}<path d="${d}" stroke="#000" stroke-width="${sw}" stroke-linecap="square" fill="none"/></svg>`};
+}
+function viewMaze(m){
+  const a=mazeSvg(m,false),b=mazeSvg(m,true);
+  const wrap=x=>`<div class="mzlab" style="width:${x.w}px;justify-content:flex-start">↓ ${esc(L().start)}</div><div class="mzwrap" style="width:${x.w}px">${x.svg}</div><div class="mzlab" style="width:${x.w}px;justify-content:flex-end">↓ ${esc(L().finish)}</div>`;
+  return {pages:[head(val('mzTitle'),val('mzInstr'))+`<div class="center" style="flex-direction:column;align-items:center">${wrap(a)}</div>`],
+    keys:[keyHead(val('mzTitle'))+`<div class="center" style="flex-direction:column;align-items:center">${wrap(b)}</div>`],msg:`A new ${m.cols} × ${m.rows} maze. Press New layout for a different one.`,ok:true};
+}
+
+/* ---------- connect the dots ---------- */
+function buildDots(){return {shape:SHAPES[val('dtShape')]||SHAPES.magen}}
+function dotsArt(sh,key){
+  const W=600,k=W/100,P=p=>[+(p[0]*k).toFixed(1),+(p[1]*k).toFixed(1)];
+  const pts=sh.pts.map(P);
+  let alpha=L().dotsAlpha,useAbc=val('dtLabel')==='abc'&&pts.length<=alpha.length;
+  const cx=pts.reduce((s,p)=>s+p[0],0)/pts.length,cy=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+  const extra=sh.extra.map(e=>e.line?`<polyline points="${e.line.map(P).map(p=>p.join(',')).join(' ')}" fill="none" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`
+    :`<circle cx="${(e.circle[0]*k).toFixed(1)}" cy="${(e.circle[1]*k).toFixed(1)}" r="${(e.circle[2]*k).toFixed(1)}" fill="none" stroke="#000" stroke-width="2.5"/>`).join('');
+  const line=key?`<polyline points="${(sh.closed?pts.concat([pts[0]]):pts).map(p=>p.join(',')).join(' ')}" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`:'';
+  const mark=$('dtStart').checked;
+  const dots=pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${i===0&&mark?6:3.8}" fill="#000"/>`).join('');
+  const labels=pts.map((p,i)=>{let dx=p[0]-cx,dy=p[1]-cy;const len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;
+    const lab=useAbc?alpha[i]:String(i+1);
+    return `<span style="left:${(p[0]+dx*15).toFixed(1)}px;top:${(p[1]+dy*15).toFixed(1)}px;${i===0&&mark?'font-weight:700;font-size:16px':''}">${esc(lab)}</span>`}).join('');
+  return {html:`<div class="dots" style="width:${W}px;height:${W}px"><svg width="${W}" height="${W}" viewBox="-10 -10 ${W+20} ${W+20}" style="left:-10px;top:-10px;width:${W+20}px;height:${W+20}px">${extra}${line}${dots}</svg>${labels}</div>`,
+    fell:val('dtLabel')==='abc'&&!useAbc,n:pts.length};
+}
+function viewDots(s){
+  const a=dotsArt(s.shape,false),b=dotsArt(s.shape,true),nm=s.shape.n[{he:0,yi:1,en:2}[lang]];
+  return {pages:[head(val('dtTitle'),val('dtInstr'))+`<div class="center">${a.html}</div>`],
+    keys:[keyHead(val('dtTitle'),L().key+' – '+nm)+`<div class="center">${b.html}</div>`],
+    msg:a.fell?`This picture has ${a.n} dots, more than the alphabet, so it uses numbers.`:`${a.n} dots.`,ok:!a.fell};
+}
+
+/* ---------- tracing ---------- */
+function buildTrace(){return {}}
+function traceRow(text,size,repeat,style,ruled,blank){
+  const SC=2,W=684,h=Math.round(size*1.55),c=document.createElement('canvas');c.width=W*SC;c.height=h*SC;
+  const x=c.getContext('2d');x.scale(SC,SC);
+  let fs=size;const setFont=()=>x.font=`${style==='dots'?700:500} ${fs}px Heebo, Arial, sans-serif`;setFont();
+  const base=h*0.76,cap=x.measureText(lang==='en'?'H':'ב').actualBoundingBoxAscent||fs*.7;
+  if(ruled){x.strokeStyle='#9a9a9a';x.lineWidth=1.2;
+    const ln=y=>{x.beginPath();x.moveTo(4,y);x.lineTo(W-4,y);x.stroke()};
+    ln(base);ln(base-cap);
+    if(lang==='en'){const xh=x.measureText('x').actualBoundingBoxAscent||fs*.5;x.setLineDash([7,6]);ln(base-xh);x.setLineDash([])}}
+  if(!blank&&text){
+    const R=rtl();x.direction=R?'rtl':'ltr';x.textAlign=R?'right':'left';
+    let tw=x.measureText(text).width;if(tw>W-20){fs=Math.floor(fs*(W-20)/tw);setFont();tw=x.measureText(text).width}
+    let n=repeat;while(n>1&&n*tw+(n-1)*fs*.8>W-20)n--;
+    const slot=(W-20)/n;
+    for(let i=0;i<n;i++){const pos=10+i*slot,X=R?W-pos:pos;
+      if(style==='dots'){x.setLineDash([0,Math.max(4,fs*.085)]);x.lineCap='round';x.lineWidth=Math.max(1.8,fs*.042);x.strokeStyle='#222';x.strokeText(text,X,base);x.setLineDash([])}
+      else{x.fillStyle='#c4c4c4';x.fillText(text,X,base)}}
+  }
+  return {src:c.toDataURL('image/png'),h};
+}
+function viewTrace(){
+  const words=lines('trWords');
+  if(!words.length)return emptyOut('Add at least one word to trace.');
+  const size=+val('trSize'),rep=+val('trRepeat'),style=val('trStyle'),ruled=$('trLines').checked,prac=$('trPractice').checked;
+  const rows=[];
+  words.forEach(w=>{rows.push(traceRow(w,size,rep,style,ruled,false));if(prac)rows.push(traceRow('',size,rep,style,ruled,true))});
+  const pages=[];let cur=head(val('trTitle'),val('trInstr')),used=150;
+  rows.forEach(r=>{const hh=r.h+6;if(used+hh>950){pages.push(cur);cur='';used=0}
+    cur+=`<div class="trace"><img alt="" src="${r.src}" style="height:${r.h}px;object-fit:contain"></div>`;used+=hh;});
+  pages.push(cur);
+  return {pages,keys:[],msg:`${words.length} ${words.length===1?'line':'lines'} on ${pages.length} ${pages.length===1?'page':'pages'}.`,ok:true};
+}
+
+/* ---------- secret code ---------- */
+const SYMS=Array.from('★☆●○■□▲△▼▽◆◇♥♡♦♢♣♧♠♤♪♫✚✖✿❀☾☁✦✧◐◑◒◓⬟⬢⊕⊗⊙✱✶☼◎▣✕⬠⬡✪✤');
+function buildCode(){
+  const msg=lines('cdWords').map(l=>l.split(/\s+/).map(w=>letters(w,false)).filter(w=>w.length));
+  const used=new Set(msg.flat(2));
+  if(!used.size)return {empty:true};
+  const order=L().order;
+  let core=L().core;if(lang==='yi'&&!$('yiMarks').checked)core=[...new Set(core.map(c=>c[0]))];
+  const set=new Set($('cdOnly').checked?used:[...core,...used]);
+  const keyList=[...set].sort((a,b)=>{const ia=order.indexOf(a),ib=order.indexOf(b);return (ia<0?999:ia)-(ib<0?999:ib)});
+  let mode=val('cdMode');if(mode==='sym'&&keyList.length>SYMS.length)mode='num';
+  const vals=mode==='sym'?shuffle(SYMS.slice()).slice(0,keyList.length):mode==='num'?shuffle(keyList.map((_,i)=>i+1)):keyList.map((_,i)=>i+1);
+  const map={};keyList.forEach((l,i)=>map[l]=vals[i]);
+  return {msg,keyList,map,mode};
+}
+function codeHtml(s,key){
+  const num=s.mode!=='sym'?' num':'';
+  const k=`<div class="codekey${num}">${s.keyList.map(l=>`<div><b>${esc(l)}</b><i>${esc(s.map[l])}</i></div>`).join('')}</div>`;
+  const m=s.msg.map(line=>`<div class="codemsg${num}">${line.map(w=>`<div class="cword">${w.map(l=>`<div class="ccell"><i>${esc(s.map[l])}</i><b>${key?esc(l):''}</b></div>`).join('')}</div>`).join('')}</div>`).join('<div style="height:18px"></div>');
+  return k+m;
+}
+function viewCode(s){
+  if(s.empty)return emptyOut('Type a secret message to encode.');
+  return {pages:[head(val('cdTitle'),val('cdInstr'))+codeHtml(s,false)],keys:[keyHead(val('cdTitle'))+codeHtml(s,true)],
+    msg:`${s.msg.flat().length} words, ${s.keyList.length} letters in the key.`,ok:true};
+}
+
+/* ---------- word scramble ---------- */
+function parseWords(id){const out=[],skipped=[];lines(id).forEach(l=>{const [w,h]=splitClue(l),ch=letters(w,false);if(ch.length<2)skipped.push(w);else out.push({w,h,ch})});return {out,skipped}}
+function buildScramble(){
+  const {out,skipped}=parseWords('scWords');
+  out.forEach(o=>{let s=o.ch.slice();for(let t=0;t<25;t++){shuffle(s);if(s.join('|')!==o.ch.join('|'))break}o.s=s});
+  return {items:out,skipped};
+}
+function viewScramble(s){
+  if(!s.items.length)return {...emptyOut('Add at least one word to scramble.'),skipped:s.skipped};
+  const body=key=>`<div class="rows">${s.items.map((o,i)=>`<div class="rowi"><b>${i+1}.</b><div class="tiles">${o.s.map(c=>`<div class="tile">${esc(c)}</div>`).join('')}</div><div class="ansline">${key?esc(o.w):''}</div>${o.h?`<div class="hintt">${esc(o.h)}</div>`:''}</div>`).join('')}</div>`;
+  return {pages:[head(val('scTitle'),val('scInstr'))+body(false)],keys:[keyHead(val('scTitle'))+body(true)],skipped:s.skipped,msg:`${s.items.length} words.`,ok:true};
+}
+
+/* ---------- missing letters ---------- */
+function buildMissing(){
+  const {out,skipped}=parseWords('msWords'),mode=val('msHide');
+  out.forEach(o=>{const n=o.ch.length,k=mode==='half'?Math.max(1,Math.floor(n/2)):Math.min(+mode,n-1);
+    o.hide=new Set(shuffle([...o.ch.keys()]).slice(0,k))});
+  return {items:out,skipped};
+}
+function viewMissing(s){
+  if(!s.items.length)return {...emptyOut('Add at least one word.'),skipped:s.skipped};
+  const body=key=>`<div class="rows">${s.items.map((o,i)=>`<div class="rowi"><b>${i+1}.</b><div class="tiles">${o.ch.map((c,j)=>o.hide.has(j)?`<div class="tile gap">${key?`<em>${esc(c)}</em>`:''}</div>`:`<div class="tile">${esc(c)}</div>`).join('')}</div>${o.h?`<div class="hintt">${esc(o.h)}</div>`:''}</div>`).join('')}</div>`;
+  let bank='';
+  if($('msBank').checked){const all=shuffle(s.items.flatMap(o=>o.ch.filter((_,j)=>o.hide.has(j))));bank=`<div class="bank">${all.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`}
+  return {pages:[head(val('msTitle'),val('msInstr'))+body(false)+bank],keys:[keyHead(val('msTitle'))+body(true)],skipped:s.skipped,msg:`${s.items.length} words.`,ok:true};
+}
+
+/* ---------- matching ---------- */
+function buildMatch(){
+  const pairs=[],bad=[];lines('mtWords').forEach(l=>{const [w,m]=splitClue(l);if(m)pairs.push({w,m});else bad.push(w)});
+  let order=[...pairs.keys()];if(pairs.length>1)for(let t=0;t<25;t++){shuffle(order);if(order.some((v,i)=>v!==i))break}
+  return {pairs,order,bad};
+}
+function viewMatch(s){
+  if(s.pairs.length<2)return emptyOut('Add at least two lines like “word - meaning”.');
+  const body=key=>`<div class="match">${s.pairs.map((p,i)=>{const q=s.pairs[s.order[i]];
+    return `<div class="mw l"><span><b>${i+1}.</b> ${esc(p.w)}</span><span class="pt">●</span></div><div></div><div class="mw r"><span class="pt">●</span><span style="flex:1"><span class="mnum">${key?s.order[i]+1:''}</span> ${esc(q.m)}</span></div>`}).join('')}</div>`;
+  return {pages:[head(val('mtTitle'),val('mtInstr'))+body(false)],keys:[keyHead(val('mtTitle'))+body(true)],
+    msg:s.bad.length?`Skipped ${list(s.bad)}: needs a meaning after a dash.`:`${s.pairs.length} pairs.`,ok:!s.bad.length};
+}
+
+/* ---------- bingo ---------- */
+function buildBingo(){
+  const words=[...new Set(lines('bgWords'))],n=+val('bgSize'),free=$('bgFree').checked&&n%2===1,need=n*n-(free?1:0);
+  const count=Math.max(1,Math.min(60,parseInt(val('bgCount'))||1));
+  if(words.length<need)return {short:true,need,have:words.length,n};
+  const cards=[];for(let i=0;i<count;i++)cards.push(shuffle(words.slice()).slice(0,need));
+  return {words,n,free,cards};
+}
+function viewBingo(s){
+  if(s.short)return {...emptyOut(`A ${s.n} × ${s.n} card needs at least ${s.need} words. You have ${s.have}.`),msg:`Add ${s.need-s.have} more ${s.need-s.have===1?'word':'words'}, or choose a smaller card.`,ok:false};
+  const per=+val('bgPer'),gw=per===2?400:620,cell=Math.floor(gw/s.n),mid=Math.floor(s.n*s.n/2);
+  const card=ws=>{let k=0;const cells=[];
+    for(let i=0;i<s.n*s.n;i++){if(s.free&&i===mid){cells.push(`<div class="bfree" style="font-size:${Math.round(cell*.2)}px">${esc(L().free)}</div>`);continue}
+      const w=ws[k++],fs=Math.max(11,Math.floor(Math.min(cell*.26,cell*1.7/Math.max(3,w.length))));cells.push(`<div style="font-size:${fs}px">${esc(w)}</div>`)}
+    return `<div class="bcard">${head(val('bgTitle'),'')}<div class="bgrid" style="grid-template-columns:repeat(${s.n},${cell}px);grid-auto-rows:${cell}px">${cells.join('')}</div></div>`};
+  const pages=[];for(let i=0;i<s.cards.length;i+=per)pages.push(s.cards.slice(i,i+per).map(card).join(''));
+  const slips=keyHead(val('bgTitle'),L().caller)+`<div class="slips">${s.words.map(w=>`<div>${esc(w)}</div>`).join('')}</div>`;
+  return {pages,keys:[slips],msg:`${s.cards.length} different cards on ${pages.length} ${pages.length===1?'page':'pages'}.`,ok:true};
+}
+
+/* ---------- wiring ---------- */
+const GEN={search:[buildSearch,viewSearch],cross:[buildCross,viewCross],maze:[buildMaze,viewMaze],dots:[buildDots,viewDots],trace:[buildTrace,viewTrace],
+  code:[buildCode,viewCode],scramble:[buildScramble,viewScramble],missing:[buildMissing,viewMissing],match:[buildMatch,viewMatch],bingo:[buildBingo,viewBingo]};
+const PREFIX={};TYPES.forEach(([id,,p])=>PREFIX[p]=id);
+
+function grabContent(){const o={};CONTENT.forEach(id=>o[id]=$(id).value);return o}
+function putContent(o){CONTENT.forEach(id=>$(id).value=(o&&o[id]!==undefined)?o[id]:(L().def[id]||''))}
+function save(){
+  try{perLang[lang]=grabContent();const o={type,lang,perLang};SHARED.forEach(id=>{const el=$(id);o[id]=el.type==='checkbox'?el.checked:el.value});localStorage.setItem(STORE,JSON.stringify(o))}catch(e){}
+}
+function load(){
+  try{
+    let o=JSON.parse(localStorage.getItem(STORE)||'null');
+    if(!o){const v2=JSON.parse(localStorage.getItem('puzzlemaker-v2')||'null');
+      if(v2){o={...v2,type:v2.mode==='cross'?'cross':'search'}}}
+    if(!o)return;
+    SHARED.forEach(id=>{if(o[id]===undefined)return;const el=$(id);if(el.type==='checkbox')el.checked=o[id];else el.value=o[id]});
+    if(o.type&&GEN[o.type])type=o.type;if(o.lang&&LANGS[o.lang])lang=o.lang;perLang=o.perLang||{};
+  }catch(e){}
+}
 function setStatus(skipped,msg,ok){
   const st=$('status');let html=msg||'';
   if(skipped&&skipped.length){html+=(html?'<br>':'')+`Skipped ${list(skipped)}: needs at least two letters.`;ok=false}
   st.className='status '+(html?(ok?'ok':'warn'):'');st.innerHTML=html;
 }
-function note(msg,ok){const st=$('status');st.className='status '+(ok?'ok':'warn');st.textContent=msg}
-function rebuild(){if(mode==='search')S.search=buildSearch();else S.cross=buildCross();render()}
+function note(msg){const st=$('status');st.className='status warn';st.textContent=msg}
 function render(){
-  if(mode==='search'){if(!S.search)S.search=buildSearch();renderSearch()}
-  else{if(!S.cross)S.cross=buildCross();renderCross()}
-  $('keySheet').classList.toggle('hidden',!$('optKey').checked||!$('keySheet').innerHTML);
+  if(!S[type])S[type]=GEN[type][0]();
+  const out=GEN[type][1](S[type]);
+  const l=L(),sheet=(h,k)=>`<div class="sheet${k?' key':''}" dir="${l.dir}" lang="${lang}">${h}</div>`;
+  const showKey=$('optKey').checked&&out.keys&&out.keys.length;
+  $('pages').innerHTML=out.pages.map(p=>sheet(p)).join('')+(showKey?out.keys.map(k=>sheet(k,true)).join(''):'');
+  setStatus(out.skipped,out.msg,out.ok);
+}
+function rebuild(){S[type]=null;render()}
+function fillShapes(){
+  const sel=$('dtShape'),cur=sel.value||'magen',i={he:0,yi:1,en:2}[lang];
+  sel.innerHTML=Object.entries(SHAPES).map(([k,s])=>`<option value="${k}">${esc(s.n[i])}${s.n[i]!==s.n[2]?' – '+s.n[2]:''}</option>`).join('');
+  sel.value=SHAPES[cur]?cur:'magen';
 }
 function applyLang(){
   const l=L();
   document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-selected',b.dataset.lang===lang));
-  $('sheet').dir=$('keySheet').dir=l.dir;
-  $('sheet').lang=$('keySheet').lang=lang;
-  $('wsWords').dir=$('cwWords').dir=l.dir;
-  $('easyOpt').textContent=l.easy;$('wsHint').textContent=l.hint;
+  document.querySelectorAll('.panel textarea').forEach(t=>t.dir=l.dir);
+  $('easyOpt').textContent=l.easy;
   $('unfinalRow').classList.toggle('hidden',lang==='en');
   $('marksRow').classList.toggle('hidden',lang!=='yi');
+  fillShapes();
 }
 function setLang(nl){
   if(nl===lang)return;
   perLang[lang]=grabContent();lang=nl;putContent(perLang[lang]);
-  S.search=S.cross=null;applyLang();render();save();
+  for(const k in S)S[k]=null;applyLang();render();save();
 }
-function setMode(m){
-  mode=m;
-  $('tabSearch').setAttribute('aria-selected',m==='search');$('tabCross').setAttribute('aria-selected',m==='cross');
-  $('panelSearch').classList.toggle('hidden',m!=='search');$('panelCross').classList.toggle('hidden',m!=='cross');
+function setType(t){
+  type=t;
+  document.querySelectorAll('#types button').forEach(b=>b.setAttribute('aria-selected',b.dataset.type===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('hidden',p.dataset.type!==t));
+  $('keyRow').classList.toggle('hidden',t==='trace');
+  $('keyLabel').textContent=t==='bingo'?'Caller list':'Answer key';
   render();save();
 }
+$('types').innerHTML=TYPES.map(([id,label])=>`<button role="tab" data-type="${id}" aria-selected="false">${label}</button>`).join('');
+document.querySelectorAll('#types button').forEach(b=>b.onclick=()=>setType(b.dataset.type));
 
 /* ---------- downloads (clean letter-size pages) ---------- */
 let dlCap=null;
 if(window.claude&&typeof window.claude.use==='function'){dlCap=window.claude.use('downloads').catch(()=>null)}
 async function saveFile(name,blob){
   const d=dlCap?await dlCap:null;
-  if(d){
-    try{await d.save({filename:name,data:blob});return true}
-    catch(e){if(e&&e.code==='declined')return false;note('This view can’t save files. Open the page in its own tab and try again.');return false}
-  }
+  if(d){try{await d.save({filename:name,data:blob});return true}
+    catch(e){if(e&&e.code==='declined')return false;note('This view can’t save files. Open the page in its own tab and try again.');return false}}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);return true;
 }
-const PW=816,PH=1056,PAD=48,SCALE=2.5; /* 8.5×11 in at 96px/in, 0.5 in margin, ~240 dpi output */
+const PW=816,PH=1056,PAD=48,SCALE=2.5;
 async function pageCanvas(el){
   if(document.fonts&&document.fonts.ready)await document.fonts.ready;
   const box=document.createElement('div');
   box.style.cssText=`position:absolute;left:-12000px;top:0;width:${PW}px;padding:${PAD}px;background:#fff;box-sizing:border-box`;
-  const clone=el.cloneNode(true);clone.classList.remove('hidden');clone.removeAttribute('id');
+  const clone=el.cloneNode(true);
   clone.style.cssText='margin:0;padding:0;max-width:none;box-shadow:none;border-radius:0;overflow:visible;background:#fff';
   box.appendChild(clone);document.body.appendChild(box);
   try{
@@ -486,25 +831,30 @@ async function pageCanvas(el){
     x.drawImage(shot,(pw-w)/2,0,w,h);return c;
   }finally{box.remove()}
 }
-const pages=()=>{const p=[$('sheet')];if(!$('keySheet').classList.contains('hidden'))p.push($('keySheet'));return p};
-const baseName=()=>{const t=(mode==='search'?$('wsTitle'):$('cwTitle')).value.trim()||'puzzle';return t.replace(/[\\/:*?"<>|]+/g,'').slice(0,60)};
+const sheets=()=>[...document.querySelectorAll('#pages .sheet')];
+const baseName=()=>{const el=$(TYPES.find(t=>t[0]===type)[2]+'Title');const t=(el&&el.value.trim())||'puzzle';return t.replace(/[\\/:*?"<>|]+/g,'').slice(0,60)};
 const toBlob=c=>new Promise(r=>c.toBlob(r,'image/jpeg',0.92));
 async function busy(btn,fn){
   if(typeof html2canvas==='undefined'){note('The download tools didn’t load. Check the internet connection and reload.');return}
-  const label=btn.textContent;btn.disabled=true;btn.textContent='Making…';
-  try{await fn()}catch(e){note('Something went wrong making the file. Try again.')}
+  const label=btn.textContent;btn.disabled=true;
+  try{await fn(p=>btn.textContent=p)}catch(e){note('Something went wrong making the file. Try again.')}
   finally{btn.disabled=false;btn.textContent=label}
 }
-$('btnPdf').onclick=()=>busy($('btnPdf'),async()=>{
+$('btnPdf').onclick=()=>busy($('btnPdf'),async prog=>{
   const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'in',format:'letter',orientation:'portrait'});
-  const ps=pages();
-  for(let i=0;i<ps.length;i++){const c=await pageCanvas(ps[i]);if(i)pdf.addPage('letter','portrait');pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,8.5,11)}
+  const ps=sheets();
+  for(let i=0;i<ps.length;i++){prog(`Page ${i+1} of ${ps.length}…`);const c=await pageCanvas(ps[i]);if(i)pdf.addPage('letter','portrait');pdf.addImage(c.toDataURL('image/jpeg',0.9),'JPEG',0,0,8.5,11)}
   await saveFile(baseName()+'.pdf',pdf.output('blob'));
 });
-$('btnJpg').onclick=()=>busy($('btnJpg'),async()=>{
-  const ps=pages();
-  for(let i=0;i<ps.length;i++){const c=await pageCanvas(ps[i]);
-    const ok=await saveFile(baseName()+(i?' - '+L().key:'')+'.jpg',await toBlob(c));if(!ok)break}
+$('btnJpg').onclick=()=>busy($('btnJpg'),async prog=>{
+  const ps=sheets();
+  if(ps.length>2&&window.JSZip){
+    const zip=new JSZip();
+    for(let i=0;i<ps.length;i++){prog(`Page ${i+1} of ${ps.length}…`);zip.file(`${baseName()} ${String(i+1).padStart(2,'0')}.jpg`,await toBlob(await pageCanvas(ps[i])))}
+    await saveFile(baseName()+'.zip',await zip.generateAsync({type:'blob'}));return;
+  }
+  for(let i=0;i<ps.length;i++){prog(`Page ${i+1} of ${ps.length}…`);const c=await pageCanvas(ps[i]);
+    const ok=await saveFile(baseName()+(ps.length>1?' '+(i+1):'')+'.jpg',await toBlob(c));if(!ok)break}
 });
 
 let timer;
@@ -512,18 +862,19 @@ FIELDS.forEach(id=>{const el=$(id);
   el.addEventListener(el.tagName==='SELECT'||el.type==='checkbox'?'change':'input',()=>{
     save();clearTimeout(timer);
     if(el.hasAttribute('data-rebuild')){
-      if(id==='yiMarks'){S.search=S.cross=null}
-      else if(id.startsWith('ws'))S.search=null;else S.cross=null;
+      if(id==='yiMarks'){for(const k in S)S[k]=null}else S[PREFIX[id.slice(0,2)]]=null;
       timer=setTimeout(render,350);
-    }else render();
+    }else if(el.tagName==='TEXTAREA'||el.type==='text'||el.type==='number'){timer=setTimeout(render,250)}
+    else render();
   });
 });
 document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
-$('tabSearch').onclick=()=>setMode('search');
-$('tabCross').onclick=()=>setMode('cross');
 $('btnNew').onclick=rebuild;
 $('btnPrint').onclick=()=>window.print();
-load();putContent(perLang[lang]);applyLang();setMode(mode);
+fillShapes();load();putContent(perLang[lang]);applyLang();
+setType(type);
+if(document.fonts){document.fonts.load('700 64px Heebo','שלום Abc');document.fonts.load('500 64px Heebo','שלום Abc');document.fonts.ready.then(()=>{if(type==='trace')render()})}
+
 </script>
 </body>
 </html>
