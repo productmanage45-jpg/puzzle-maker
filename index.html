@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Puzzle Maker · חיפוש מילים ותשבץ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E7ECF1; --panel:#FFFFFF; --ink:#18222E; --muted:#596676; --line:#C7D0DA;
+  --accent:#1F5C8C; --accent-ink:#FFFFFF; --field:#F6F8FA;
+  --warn-bg:#FFF2DB; --warn-ink:#734600; --ok-ink:#2D6A3E;
+  --paper:#FFFFFF; --paper-ink:#000000; --paper-muted:#555555; --hl:rgba(31,92,140,.22);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151C; --panel:#18212B; --ink:#E4EBF2; --muted:#98A7B6; --line:#2F3B48;
+    --accent:#72AADA; --accent-ink:#0C1824; --field:#121A22;
+    --warn-bg:#3A2A10; --warn-ink:#F2C67A; --ok-ink:#8FD3A1; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151C; --panel:#18212B; --ink:#E4EBF2; --muted:#98A7B6; --line:#2F3B48;
+  --accent:#72AADA; --accent-ink:#0C1824; --field:#121A22;
+  --warn-bg:#3A2A10; --warn-ink:#F2C67A; --ok-ink:#8FD3A1; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Heebo,"Segoe UI",Arial,sans-serif}
+.app-head{max-width:1240px;margin:0 auto;padding:28px 20px 8px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.app-head .he{font-family:"Frank Ruhl Libre","Times New Roman",serif;font-weight:900;font-size:clamp(30px,5vw,46px);line-height:1;margin:0;direction:rtl}
+.app-head p{margin:0;color:var(--muted)}
+.layout{max-width:1240px;margin:0 auto;padding:12px 20px 40px;display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:24px;align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+.controls{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.tabs{display:flex;gap:4px;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:4px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:500 15px Heebo,sans-serif;padding:8px;border-radius:6px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+label.f{display:block;font-weight:500;margin:12px 0 4px}
+.hint{color:var(--muted);font-weight:400;font-size:13px}
+input[type=text],textarea,select{width:100%;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:15px Heebo,sans-serif}
+textarea{min-height:190px;resize:vertical;font-family:"Frank Ruhl Libre",serif;font-size:18px;line-height:1.5}
+.check{display:flex;gap:8px;align-items:flex-start;margin:10px 0;cursor:pointer}
+.check input{margin-top:4px;accent-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.btns{display:flex;gap:10px;margin-top:10px}
+.btns button{flex:1;padding:10px;border-radius:7px;font:500 15px Heebo,sans-serif;cursor:pointer;border:1px solid var(--accent)}
+.btn-main{background:var(--accent);color:var(--accent-ink)}
+.btn-alt{background:transparent;color:var(--accent)}
+.status{margin-top:14px;font-size:14px;border-radius:6px;padding:8px 10px}
+.status.ok{color:var(--ok-ink);padding:0}
+.status.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.status .he{font-family:"Frank Ruhl Libre",serif;font-size:16px}
+.hidden{display:none!important}
+
+.preview{min-width:0}
+.sheet{background:var(--paper);color:var(--paper-ink);max-width:780px;margin:0 auto 24px;padding:44px 48px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.18);overflow-x:auto;font-family:"Frank Ruhl Libre","Times New Roman",serif}
+.sheet h1{font-size:34px;font-weight:900;margin:0;line-height:1.1}
+.sheet h2{font-size:20px;font-weight:700;margin:4px 0 0;color:var(--paper-muted)}
+.sheet .top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;border-bottom:2px solid var(--paper-ink);padding-bottom:10px;margin-bottom:12px}
+.sheet .name{font-size:18px;white-space:nowrap}
+.sheet .name span{display:inline-block;width:170px;border-bottom:1px solid var(--paper-ink);margin-inline-start:6px}
+.sheet .instr{font-size:19px;margin:0 0 18px}
+.center{display:flex;justify-content:center}
+.wsframe{border:2px solid var(--paper-ink);border-radius:6px;padding:8px;display:inline-block}
+.wsinner{position:relative}
+.wsinner svg{position:absolute;inset:0;pointer-events:none}
+.wsgrid{position:relative;display:grid}
+.wsgrid div{display:flex;align-items:center;justify-content:center;font-weight:700}
+.wordbank{display:flex;flex-wrap:wrap;gap:6px 22px;justify-content:center;margin-top:22px;font-size:21px;border:1px solid var(--paper-ink);border-radius:6px;padding:12px 16px}
+.cwgrid{display:grid;margin:6px auto 0}
+.cwgrid .box{position:relative;outline:1.5px solid var(--paper-ink);outline-offset:-.75px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.cwgrid .box i{position:absolute;top:1px;inset-inline-start:3px;font-style:normal;font-family:Heebo,sans-serif;font-weight:500;line-height:1}
+.clues{display:grid;grid-template-columns:1fr 1fr;gap:10px 36px;margin-top:26px;font-size:18px}
+@media (max-width:560px){.clues{grid-template-columns:1fr}.sheet{padding:28px 20px}}
+.clues h3{font-size:21px;margin:0 0 6px;border-bottom:1px solid var(--paper-ink)}
+.clues ol{list-style:none;margin:0;padding:0}
+.clues li{margin:0 0 6px;display:flex;gap:6px}
+.clues li b{min-width:1.6em}
+.clues .len{color:var(--paper-muted);white-space:nowrap}
+.empty{font-family:Heebo,sans-serif;color:var(--paper-muted);text-align:center;padding:60px 0;direction:ltr}
+
+.langbar{margin-bottom:14px}
+.langbar .tabs{margin-bottom:0}
+.langbar .tabs button{font-family:"Frank Ruhl Libre",Heebo,serif;font-size:16px}
+.small{font-size:13px;color:var(--muted);margin:8px 0 0}
+.btns button:disabled{opacity:.55;cursor:progress}
+.sheet[dir=ltr] .clues li b{min-width:1.8em}
+@media print{
+  @page{size:letter;margin:0}
+  :root{padding:0}
+  html,body{background:#fff}
+  .app-head,.controls{display:none!important}
+  .layout{display:block;padding:0;max-width:none}
+  .sheet{box-shadow:none;margin:0;padding:0.5in;max-width:none;border-radius:0;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .key{break-before:page}
+}
+</style>
+</head>
+<body>
+<header class="app-head">
+  <h1 class="he">חיפוש מילים ותשבץ</h1>
+  <p>Hebrew, Yiddish or English. Type your words, check the preview, print or download.</p>
+</header>
+
+<main class="layout">
+  <section class="controls" aria-label="Puzzle settings">
+    <div class="langbar">
+      <label class="f" style="margin-top:0">Sheet language</label>
+      <div class="tabs" role="tablist" aria-label="Sheet language">
+        <button role="tab" id="lang-he" data-lang="he" aria-selected="true">עברית</button>
+        <button role="tab" id="lang-yi" data-lang="yi" aria-selected="false">ייִדיש</button>
+        <button role="tab" id="lang-en" data-lang="en" aria-selected="false" style="font-family:Heebo,sans-serif">English</button>
+      </div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabSearch" aria-selected="true">Word search</button>
+      <button role="tab" id="tabCross" aria-selected="false">Crossword</button>
+    </div>
+
+    <div id="panelSearch">
+      <label class="f" for="wsTitle">Title</label>
+      <input type="text" id="wsTitle" dir="auto">
+      <label class="f" for="wsInstr">Instructions</label>
+      <input type="text" id="wsInstr" dir="auto">
+      <label class="f" for="wsWords">Words <span class="hint" id="wsHint">one per line</span></label>
+      <textarea id="wsWords" data-rebuild></textarea>
+      <div class="row">
+        <div>
+          <label class="f" for="wsSize">Grid size</label>
+          <select id="wsSize" data-rebuild>
+            <option value="auto">Auto</option>
+            <option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option>
+          </select>
+        </div>
+        <div>
+          <label class="f" for="wsLevel">Words run</label>
+          <select id="wsLevel" data-rebuild>
+            <option value="easy" id="easyOpt">Right-to-left and down</option>
+            <option value="medium" selected>Plus diagonals</option>
+            <option value="hard">Every way, incl. backwards</option>
+          </select>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="wsBank" checked> Show the word list on the sheet</label>
+      <label class="check" id="unfinalRow"><input type="checkbox" id="wsUnfinal" data-rebuild> Use regular letters for finals (ך becomes כ)</label>
+    </div>
+
+    <div id="panelCross" class="hidden">
+      <label class="f" for="cwTitle">Title</label>
+      <input type="text" id="cwTitle" dir="auto">
+      <label class="f" for="cwInstr">Instructions</label>
+      <input type="text" id="cwInstr" dir="auto">
+      <label class="f" for="cwWords">Words and clues <span class="hint">one per line: word - clue</span></label>
+      <textarea id="cwWords" data-rebuild></textarea>
+      <label class="check"><input type="checkbox" id="cwLen" checked> Show letter count after each clue</label>
+    </div>
+
+    <label class="check" id="marksRow"><input type="checkbox" id="yiMarks" data-rebuild checked> Keep Yiddish letter marks in the grid (אַ אָ פּ פֿ)</label>
+    <hr>
+    <label class="check"><input type="checkbox" id="optName" checked> Name line at the top</label>
+    <label class="check"><input type="checkbox" id="optKey"> Show answer key <span class="hint">(its own page)</span></label>
+    <div class="btns">
+      <button class="btn-alt" id="btnNew">New layout</button>
+      <button class="btn-main" id="btnPrint">Print</button>
+    </div>
+    <div class="btns">
+      <button class="btn-alt" id="btnPdf">Download PDF</button>
+      <button class="btn-alt" id="btnJpg">Download JPEG</button>
+    </div>
+    <p class="small">Downloads are a clean letter-size page, with nothing added at the top or bottom.</p>
+    <div id="status" class="status" role="status"></div>
+  </section>
+
+  <section class="preview" aria-label="Preview">
+    <div class="sheet" id="sheet"></div>
+    <div class="sheet key" id="keySheet"></div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const STORE='puzzlemaker-v2';
+const NIKUD=/[\u0591-\u05C7]/g;
+const FIN={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
+const LANGS={
+  he:{dir:'rtl',loc:'he',name:'שם:',across:'מאוזן',down:'מאונך',key:'תשובות',easy:'Right-to-left and down',hint:'one per line; nikud is fine',
+    alpha:Array.from('אבגדהוזחטיכלמנסעפצקרשת'),
+    def:{wsTitle:'חיפוש מילים',wsInstr:'מצאו וסמנו את כל המילים.',
+      wsWords:'תורה\nמשנה\nגמרא\nהלל\nשמאי\nישיבה\nמצוה\nשבת\nברכה\nתפילה',
+      cwTitle:'תשבץ',cwInstr:'פתרו את התשבץ בעזרת ההגדרות.',
+      cwWords:'שבת - היום השביעי בשבוע\nתורה - ניתנה בהר סיני\nסוכה - יושבים בה שבעה ימים בתשרי\nשופר - תוקעים בו בראש השנה\nמזוזה - קובעים אותה על פתח הבית\nחנוכה - חג של שמונה ימים\nמצה - אוכלים אותה בפסח\nירושלים - העיר שבה עמד בית המקדש'}},
+  yi:{dir:'rtl',loc:'yi',name:'נאָמען:',across:'אַריבער',down:'אַראָפּ',key:'ענטפֿערס',easy:'Right-to-left and down',hint:'one per line; אַ אָ פּ פֿ are kept',
+    alpha:['אַ','אָ','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פּ','פֿ','צ','ק','ר','ש','ת'],
+    def:{wsTitle:'זוכט די ווערטער',wsInstr:'געפֿינט און צייכנט אָן אַלע ווערטער.',
+      wsWords:'תורה\nמשנה\nישיבה\nמצוה\nשבת\nברכה\nמאַמע\nטאַטע\nקינדער\nהויז',
+      cwTitle:'קרייצווערטער',cwInstr:'לייזט אויס דאָס קרייצווערטער מיט די אָנווייזונגען.',
+      cwWords:'שבת - דער זיבעטער טאָג פֿון דער וואָך\nתורה - געגעבן אויפֿן באַרג סיני\nסוכה - מען זיצט אין איר זיבן טעג\nשופֿר - מען בלאָזט אים ראָש השנה\nמזוזה - מען קלאַפּט זי צו אויף דער טיר\nחנוכה - אַכט טעג צינדט מען ליכט\nמצה - מען עסט זי פּסח\nירושלים - די שטאָט פֿון בית המקדש'}},
+  en:{dir:'ltr',loc:'en',name:'Name:',across:'Across',down:'Down',key:'Answer Key',easy:'Left-to-right and down',hint:'one per line',
+    alpha:Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+    def:{wsTitle:'Word Search',wsInstr:'Find and circle all the words.',
+      wsWords:'Torah\nMishnah\nGemara\nYeshiva\nMitzvah\nShabbos\nBracha\nTefillah\nShofar\nMenorah',
+      cwTitle:'Crossword',cwInstr:'Use the clues to solve the puzzle.',
+      cwWords:'Shabbos - The seventh day of the week\nTorah - Given at Har Sinai\nSukkah - We sit in it for seven days in Tishrei\nShofar - Blown on Rosh Hashanah\nMezuzah - Put on the doorpost of the house\nChanukah - A holiday of eight days\nMatzah - Eaten on Pesach\nYerushalayim - The city where the Beis Hamikdash stood'}}
+};
+const CONTENT=['wsTitle','wsInstr','wsWords','cwTitle','cwInstr','cwWords'];
+const SHARED=['wsSize','wsLevel','wsBank','wsUnfinal','cwLen','optName','optKey','yiMarks'];
+const FIELDS=CONTENT.concat(SHARED);
+let mode='search',lang='he',perLang={};
+const S={search:null,cross:null};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd=n=>Math.floor(Math.random()*n);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+const L=()=>LANGS[lang];
+
+/* Yiddish marks that make a different letter: base letter -> allowed marks */
+const YIKEEP={'א':'\u05B7\u05B8','פ':'\u05BC\u05BF','ב':'\u05BF','כ':'\u05BC','ת':'\u05BC','ש':'\u05C2','ו':'\u05BC','י':'\u05B4','ײ':'\u05B7'};
+function letters(w,unfinal){
+  if(lang==='en')return Array.from(w.toUpperCase().replace(/[^A-Z]/g,''));
+  let s=w.normalize('NFC');
+  let out;
+  if(lang==='yi'&&$('yiMarks').checked){
+    out=[];
+    for(const m of s.matchAll(/([\u05D0-\u05EA\u05F0-\u05F2])([\u0591-\u05C7]*)/g)){
+      const keep=YIKEEP[m[1]]||'';
+      out.push(m[1]+Array.from(m[2]).filter(c=>keep.includes(c)).sort().join(''));
+    }
+  }else out=Array.from(s.replace(NIKUD,'').replace(/[^\u05D0-\u05EA\u05F0-\u05F2]/g,''));
+  if(unfinal)out=out.map(c=>FIN[c[0]]?FIN[c[0]]+c.slice(1):c);
+  return out;
+}
+
+/* ---------- storage ---------- */
+function grabContent(){const o={};CONTENT.forEach(id=>o[id]=$(id).value);return o}
+function putContent(o){CONTENT.forEach(id=>$(id).value=(o&&o[id]!==undefined)?o[id]:L().def[id])}
+function save(){
+  try{perLang[lang]=grabContent();const o={mode,lang,perLang};SHARED.forEach(id=>{const el=$(id);o[id]=el.type==='checkbox'?el.checked:el.value});localStorage.setItem(STORE,JSON.stringify(o))}catch(e){}
+}
+function load(){
+  try{
+    let o=JSON.parse(localStorage.getItem(STORE)||'null');
+    if(!o){const old=JSON.parse(localStorage.getItem('hebpuzzle-v1')||'null');
+      if(old){o={mode:old.mode,lang:'he',perLang:{he:{}}};FIELDS.forEach(id=>{if(old[id]===undefined)return;if(CONTENT.includes(id))o.perLang.he[id]=old[id];else o[id]=old[id]})}}
+    if(!o)return;
+    SHARED.forEach(id=>{if(o[id]===undefined)return;const el=$(id);if(el.type==='checkbox')el.checked=o[id];else el.value=o[id]});
+    if(o.mode)mode=o.mode;if(o.lang&&LANGS[o.lang])lang=o.lang;perLang=o.perLang||{};
+  }catch(e){}
+}
+
+/* ---------- word search ---------- */
+const DIRS={easy:[[0,1],[1,0]],medium:[[0,1],[1,0],[1,1],[1,-1]],
+  hard:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]]};
+function parseSearch(){
+  const seen=new Set(),words=[],skipped=[];
+  $('wsWords').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean).forEach(d=>{
+    const ch=letters(d,lang!=='en'&&$('wsUnfinal').checked);
+    if(ch.length<2){skipped.push(d);return}
+    const k=ch.join('|');if(seen.has(k))return;seen.add(k);
+    words.push({display:d,ch});
+  });
+  return {words,skipped};
+}
+function buildSearch(){
+  const {words,skipped}=parseSearch();
+  if(!words.length)return {empty:true,skipped};
+  const longest=Math.max(...words.map(w=>w.ch.length));
+  const total=words.reduce((s,w)=>s+w.ch.length,0);
+  const sel=$('wsSize').value;
+  const n=sel==='auto'?Math.min(20,Math.max(8,longest+1,Math.ceil(Math.sqrt(total*2.1)))):Math.max(+sel,longest);
+  const dirs=DIRS[$('wsLevel').value];
+  let best=null;
+  for(let t=0;t<30;t++){
+    const g=Array.from({length:n},()=>Array(n).fill(null)),placed=[],missed=[];
+    const order=shuffle(words.slice()).sort((a,b)=>b.ch.length-a.ch.length);
+    for(const w of order){
+      const Ln=w.ch.length,opts=[];
+      for(let r=0;r<n;r++)for(let c=0;c<n;c++)for(const [dr,dc] of dirs){
+        const er=r+dr*(Ln-1),ec=c+dc*(Ln-1);
+        if(er<0||er>=n||ec<0||ec>=n)continue;
+        let ok=true,ov=0;
+        for(let k=0;k<Ln;k++){const x=g[r+dr*k][c+dc*k];if(x){if(x!==w.ch[k]){ok=false;break}ov++}}
+        if(ok&&ov<Ln)opts.push({r,c,dr,dc,ov});
+      }
+      if(!opts.length){missed.push(w);continue}
+      const withOv=opts.filter(o=>o.ov>0);
+      const pool=withOv.length&&Math.random()<.55?withOv:opts;
+      const o=pool[rnd(pool.length)];
+      for(let k=0;k<Ln;k++)g[o.r+o.dr*k][o.c+o.dc*k]=w.ch[k];
+      placed.push({...o,L:Ln,w});
+    }
+    if(!best||missed.length<best.missed.length)best={g,placed,missed,n};
+    if(!missed.length)break;
+  }
+  let alpha=L().alpha;
+  if(lang==='yi'&&!$('yiMarks').checked)alpha=alpha.map(c=>c[0]).filter((c,i,a)=>a.indexOf(c)===i);
+  const fill=alpha.concat(words.flatMap(w=>w.ch));
+  best.g=best.g.map(row=>row.map(x=>x||fill[rnd(fill.length)]));
+  best.words=words;best.skipped=skipped;
+  return best;
+}
+function searchGrid(s,key){
+  const n=s.n,cell=Math.max(24,Math.min(46,Math.floor(640/n))),W=n*cell,rtl=L().dir==='rtl';
+  let svg='';
+  if(key){
+    svg=`<svg width="${W}" height="${W}" viewBox="0 0 ${W} ${W}">`+s.placed.map(p=>{
+      const x=c=>(rtl?n-1-c:c)*cell+cell/2,y=r=>r*cell+cell/2;
+      const er=p.r+p.dr*(p.L-1),ec=p.c+p.dc*(p.L-1);
+      return `<line x1="${x(p.c)}" y1="${y(p.r)}" x2="${x(ec)}" y2="${y(er)}" stroke="rgba(31,92,140,0.22)" stroke-width="${cell*.74}" stroke-linecap="round"/>`;
+    }).join('')+'</svg>';
+  }
+  const cells=s.g.flat().map(ch=>`<div>${ch}</div>`).join('');
+  return `<div class="center"><div class="wsframe"><div class="wsinner" style="width:${W}px;height:${W}px">${svg}
+    <div class="wsgrid" style="grid-template-columns:repeat(${n},${cell}px);grid-auto-rows:${cell}px;font-size:${Math.round(cell*.62)}px">${cells}</div></div></div></div>`;
+}
+function renderSearch(){
+  const s=S.search;
+  if(s.empty){showEmpty('Add at least one word to make a word search.');setStatus(s.skipped);return}
+  let bank='';
+  if($('wsBank').checked){
+    const list=s.words.filter(w=>!s.missed.includes(w)).map(w=>w.display).sort((a,b)=>a.localeCompare(b,L().loc));
+    bank=`<div class="wordbank">${list.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`;
+  }
+  $('sheet').innerHTML=head($('wsTitle').value,$('wsInstr').value)+searchGrid(s,false)+bank;
+  $('keySheet').innerHTML=keyHead($('wsTitle').value)+searchGrid(s,true);
+  const miss=s.missed.map(w=>w.display);
+  setStatus(s.skipped,miss.length?`Couldn’t fit ${list(miss)}. Choose a bigger grid or let words run more ways.`:`All ${s.placed.length} words are in the grid.`,!miss.length);
+}
+
+/* ---------- crossword ---------- */
+function parseCross(){
+  const seen=new Set(),entries=[],skipped=[];
+  $('cwWords').value.split('\n').map(s=>s.trim()).filter(Boolean).forEach(line=>{
+    const m=line.match(/^(.+?)\s*(?:\t|\s[-–—]\s|[-–—]\s|:)\s*(.*)$/);
+    const word=(m?m[1]:line).trim(),clue=m?m[2].trim():'';
+    const ch=letters(word,false);
+    if(ch.length<2){skipped.push(word);return}
+    const k=ch.join('|');if(seen.has(k))return;seen.add(k);
+    entries.push({display:word,clue,ch});
+  });
+  return {entries,skipped};
+}
+function tryCross(order){
+  const G=new Map(),K=(r,c)=>r+','+c,placed=[],missed=[];
+  let b={r0:0,r1:0,c0:0,c1:0};
+  const step=d=>d==='a'?[0,1]:[1,0];
+  const put=(e,r,c,d)=>{const [dr,dc]=step(d);
+    e.ch.forEach((ch,k)=>{const key=K(r+dr*k,c+dc*k),cell=G.get(key)||{ch,dirs:''};cell.dirs+=d;G.set(key,cell)});
+    b={r0:Math.min(b.r0,r),c0:Math.min(b.c0,c),r1:Math.max(b.r1,r+dr*(e.ch.length-1)),c1:Math.max(b.c1,c+dc*(e.ch.length-1))};
+    placed.push({e,r,c,d});};
+  const fits=(e,r,c,d)=>{const [dr,dc]=step(d),Ln=e.ch.length;
+    if(G.has(K(r-dr,c-dc))||G.has(K(r+dr*Ln,c+dc*Ln)))return -1;
+    let inter=0;
+    for(let k=0;k<Ln;k++){const rr=r+dr*k,cc=c+dc*k,cell=G.get(K(rr,cc));
+      if(cell){if(cell.ch!==e.ch[k]||cell.dirs.includes(d))return -1;inter++}
+      else if(G.has(K(rr+dc,cc+dr))||G.has(K(rr-dc,cc-dr)))return -1;}
+    return inter;};
+  const placeOne=e=>{
+    const cands=[];
+    for(const p of placed){const nd=p.d==='a'?'d':'a',[pdr,pdc]=step(p.d);
+      p.e.ch.forEach((pc,i)=>e.ch.forEach((ec,j)=>{if(pc!==ec)return;
+        const pr=p.r+pdr*i,pcc=p.c+pdc*i,r=nd==='a'?pr:pr-j,c=nd==='a'?pcc-j:pcc,sc=fits(e,r,c,nd);
+        if(sc>0){const [dr,dc]=step(nd),Ln=e.ch.length;
+          const h=Math.max(b.r1,r+dr*(Ln-1))-Math.min(b.r0,r)+1,w=Math.max(b.c1,c+dc*(Ln-1))-Math.min(b.c0,c)+1;
+          cands.push({r,c,d:nd,score:sc*12-Math.max(h,w)*2-(h+w)*.5+Math.random()*4});}}));}
+    if(!cands.length)return false;
+    cands.sort((a,b)=>b.score-a.score);put(e,cands[0].r,cands[0].c,cands[0].d);return true;};
+  order.forEach((e,i)=>{if(i===0)put(e,0,0,Math.random()<.5?'a':'d');else if(!placeOne(e))missed.push(e)});
+  for(let pass=0;pass<2;pass++)for(let i=missed.length-1;i>=0;i--)if(placeOne(missed[i]))missed.splice(i,1);
+  const inter=[...G.values()].filter(c=>c.dirs.length>1).length;
+  return {G,placed,missed,b,inter};
+}
+function buildCross(){
+  const {entries,skipped}=parseCross();
+  if(!entries.length)return {empty:true,skipped};
+  let best=null;
+  for(let t=0;t<120;t++){
+    const order=entries.slice().sort((a,b)=>b.ch.length-a.ch.length+(t?(Math.random()-.5)*4:0));
+    const res=tryCross(order);
+    const size=Math.max(res.b.r1-res.b.r0,res.b.c1-res.b.c0);
+    res.rank=-res.missed.length*1000-size*3+res.inter*2;
+    if(!best||res.rank>best.rank)best=res;
+  }
+  const {b}=best,H=b.r1-b.r0+1,W=b.c1-b.c0+1;
+  const starts=new Map();
+  best.placed.forEach(p=>{p.r-=b.r0;p.c-=b.c0;const k=p.r+','+p.c;if(!starts.has(k))starts.set(k,[]);starts.get(k).push(p)});
+  const grid=Array.from({length:H},()=>Array(W).fill(null));
+  best.G.forEach((cell,k)=>{const [r,c]=k.split(',').map(Number);grid[r-b.r0][c-b.c0]={ch:cell.ch,num:null}});
+  let num=0;const across=[],down=[];
+  for(let r=0;r<H;r++)for(let c=0;c<W;c++){const ps=starts.get(r+','+c);if(!ps)continue;num++;grid[r][c].num=num;
+    ps.forEach(p=>(p.d==='a'?across:down).push({num,e:p.e}));}
+  return {grid,H,W,across,down,missed:best.missed,skipped};
+}
+function crossGrid(s,key){
+  const cell=Math.max(24,Math.min(44,Math.floor(640/s.W)));
+  const cells=s.grid.flat().map(x=>x?`<div class="box">${x.num?`<i style="font-size:${Math.max(9,Math.round(cell*.3))}px">${x.num}</i>`:''}${key?x.ch:''}</div>`:'<div></div>').join('');
+  return `<div class="cwgrid" style="grid-template-columns:repeat(${s.W},${cell}px);grid-auto-rows:${cell}px;font-size:${Math.round(cell*.58)}px;width:${s.W*cell}px">${cells}</div>`;
+}
+function renderCross(){
+  const s=S.cross;
+  if(s.empty){showEmpty('Add at least one line like “word - clue” to make a crossword.');setStatus(s.skipped);return}
+  const showLen=$('cwLen').checked;
+  const li=x=>`<li><b>${x.num}.</b><span>${esc(x.e.clue||'')}${showLen?` <span class="len">(${x.e.ch.length})</span>`:''}</span></li>`;
+  const clues=`<div class="clues"><div><h3>${L().across}</h3><ol>${s.across.map(li).join('')}</ol></div><div><h3>${L().down}</h3><ol>${s.down.map(li).join('')}</ol></div></div>`;
+  $('sheet').innerHTML=head($('cwTitle').value,$('cwInstr').value)+crossGrid(s,false)+clues;
+  $('keySheet').innerHTML=keyHead($('cwTitle').value)+crossGrid(s,true);
+  const miss=s.missed.map(e=>e.display),n=s.across.length+s.down.length;
+  setStatus(s.skipped,miss.length?`Couldn’t connect ${list(miss)}. It needs a letter in common with the other words. Press New layout to retry, or add a word that crosses it.`:`All ${n} words are connected.`,!miss.length);
+}
+
+/* ---------- shared ---------- */
+function head(title,instr){
+  return `<div class="top"><h1>${esc(title)}</h1>${$('optName').checked?`<div class="name">${L().name}<span></span></div>`:''}</div>${instr.trim()?`<p class="instr">${esc(instr)}</p>`:''}`;
+}
+const keyHead=t=>`<div class="top"><div><h1>${esc(t)}</h1><h2>${L().key}</h2></div></div>`;
+function list(a){return a.map(x=>`<span class="he">${esc(x)}</span>`).join(', ')}
+function showEmpty(msg){$('sheet').innerHTML=`<p class="empty">${esc(msg)}</p>`;$('keySheet').innerHTML=''}
+function setStatus(skipped,msg,ok){
+  const st=$('status');let html=msg||'';
+  if(skipped&&skipped.length){html+=(html?'<br>':'')+`Skipped ${list(skipped)}: needs at least two letters.`;ok=false}
+  st.className='status '+(html?(ok?'ok':'warn'):'');st.innerHTML=html;
+}
+function note(msg,ok){const st=$('status');st.className='status '+(ok?'ok':'warn');st.textContent=msg}
+function rebuild(){if(mode==='search')S.search=buildSearch();else S.cross=buildCross();render()}
+function render(){
+  if(mode==='search'){if(!S.search)S.search=buildSearch();renderSearch()}
+  else{if(!S.cross)S.cross=buildCross();renderCross()}
+  $('keySheet').classList.toggle('hidden',!$('optKey').checked||!$('keySheet').innerHTML);
+}
+function applyLang(){
+  const l=L();
+  document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-selected',b.dataset.lang===lang));
+  $('sheet').dir=$('keySheet').dir=l.dir;
+  $('sheet').lang=$('keySheet').lang=lang;
+  $('wsWords').dir=$('cwWords').dir=l.dir;
+  $('easyOpt').textContent=l.easy;$('wsHint').textContent=l.hint;
+  $('unfinalRow').classList.toggle('hidden',lang==='en');
+  $('marksRow').classList.toggle('hidden',lang!=='yi');
+}
+function setLang(nl){
+  if(nl===lang)return;
+  perLang[lang]=grabContent();lang=nl;putContent(perLang[lang]);
+  S.search=S.cross=null;applyLang();render();save();
+}
+function setMode(m){
+  mode=m;
+  $('tabSearch').setAttribute('aria-selected',m==='search');$('tabCross').setAttribute('aria-selected',m==='cross');
+  $('panelSearch').classList.toggle('hidden',m!=='search');$('panelCross').classList.toggle('hidden',m!=='cross');
+  render();save();
+}
+
+/* ---------- downloads (clean letter-size pages) ---------- */
+let dlCap=null;
+if(window.claude&&typeof window.claude.use==='function'){dlCap=window.claude.use('downloads').catch(()=>null)}
+async function saveFile(name,blob){
+  const d=dlCap?await dlCap:null;
+  if(d){
+    try{await d.save({filename:name,data:blob});return true}
+    catch(e){if(e&&e.code==='declined')return false;note('This view can’t save files. Open the page in its own tab and try again.');return false}
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);return true;
+}
+const PW=816,PH=1056,PAD=48,SCALE=2.5; /* 8.5×11 in at 96px/in, 0.5 in margin, ~240 dpi output */
+async function pageCanvas(el){
+  if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  const box=document.createElement('div');
+  box.style.cssText=`position:absolute;left:-12000px;top:0;width:${PW}px;padding:${PAD}px;background:#fff;box-sizing:border-box`;
+  const clone=el.cloneNode(true);clone.classList.remove('hidden');clone.removeAttribute('id');
+  clone.style.cssText='margin:0;padding:0;max-width:none;box-shadow:none;border-radius:0;overflow:visible;background:#fff';
+  box.appendChild(clone);document.body.appendChild(box);
+  try{
+    const shot=await html2canvas(box,{scale:SCALE,backgroundColor:'#ffffff',logging:false,windowWidth:Math.max(1240,window.innerWidth)});
+    const pw=PW*SCALE,ph=PH*SCALE,c=document.createElement('canvas');c.width=pw;c.height=ph;
+    const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,pw,ph);
+    const k=Math.min(1,ph/shot.height,pw/shot.width),w=shot.width*k,h=shot.height*k;
+    x.drawImage(shot,(pw-w)/2,0,w,h);return c;
+  }finally{box.remove()}
+}
+const pages=()=>{const p=[$('sheet')];if(!$('keySheet').classList.contains('hidden'))p.push($('keySheet'));return p};
+const baseName=()=>{const t=(mode==='search'?$('wsTitle'):$('cwTitle')).value.trim()||'puzzle';return t.replace(/[\\/:*?"<>|]+/g,'').slice(0,60)};
+const toBlob=c=>new Promise(r=>c.toBlob(r,'image/jpeg',0.92));
+async function busy(btn,fn){
+  if(typeof html2canvas==='undefined'){note('The download tools didn’t load. Check the internet connection and reload.');return}
+  const label=btn.textContent;btn.disabled=true;btn.textContent='Making…';
+  try{await fn()}catch(e){note('Something went wrong making the file. Try again.')}
+  finally{btn.disabled=false;btn.textContent=label}
+}
+$('btnPdf').onclick=()=>busy($('btnPdf'),async()=>{
+  const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'in',format:'letter',orientation:'portrait'});
+  const ps=pages();
+  for(let i=0;i<ps.length;i++){const c=await pageCanvas(ps[i]);if(i)pdf.addPage('letter','portrait');pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,8.5,11)}
+  await saveFile(baseName()+'.pdf',pdf.output('blob'));
+});
+$('btnJpg').onclick=()=>busy($('btnJpg'),async()=>{
+  const ps=pages();
+  for(let i=0;i<ps.length;i++){const c=await pageCanvas(ps[i]);
+    const ok=await saveFile(baseName()+(i?' - '+L().key:'')+'.jpg',await toBlob(c));if(!ok)break}
+});
+
+let timer;
+FIELDS.forEach(id=>{const el=$(id);
+  el.addEventListener(el.tagName==='SELECT'||el.type==='checkbox'?'change':'input',()=>{
+    save();clearTimeout(timer);
+    if(el.hasAttribute('data-rebuild')){
+      if(id==='yiMarks'){S.search=S.cross=null}
+      else if(id.startsWith('ws'))S.search=null;else S.cross=null;
+      timer=setTimeout(render,350);
+    }else render();
+  });
+});
+document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+$('tabSearch').onclick=()=>setMode('search');
+$('tabCross').onclick=()=>setMode('cross');
+$('btnNew').onclick=rebuild;
+$('btnPrint').onclick=()=>window.print();
+load();putContent(perLang[lang]);applyLang();setMode(mode);
+</script>
+</body>
+</html>
