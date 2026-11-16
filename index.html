@@ -104,8 +104,7 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 .mzlab{display:flex;font:700 18px Heebo,sans-serif;margin:0 auto;padding:0 2px}
 .mzwrap{margin:4px auto 0}
 .dots{position:relative;margin:4px auto 0}
-.dots svg{position:absolute;inset:0}
-.dots span{position:absolute;transform:translate(-50%,-50%);font:500 14px/1 Heebo,sans-serif;color:#000;white-space:nowrap}
+.dots span{position:absolute;transform:translate(-50%,-50%);font:500 14px/1 Heebo,sans-serif;direction:ltr;color:#000;white-space:nowrap}
 .trace img{display:block;width:100%;margin:0 0 6px}
 .codekey{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;border:1px solid #000;border-radius:6px;padding:10px;margin:0 0 26px}
 .codekey div{display:flex;flex-direction:column;align-items:center;width:38px;border:1px solid #000;border-radius:4px;overflow:hidden}
@@ -457,8 +456,8 @@ const SHAPES={
  shofar:{n:['שופר','שופר','Shofar'],closed:true,
    pts:[[6,56],[20,59],[36,63],[50,62],[63,56],[73,45],[79,32],[82,18],[98,26],[92,40],[86,54],[76,66],[63,75],[48,79],[33,77],[18,71],[6,62]],extra:[]},
  torah:{n:['ספר תורה','ספר תורה','Sefer Torah'],closed:true,
-   pts:[[17,3],[21,3],[21,12],[25,14],[25,20],[75,20],[75,14],[79,12],[79,3],[83,3],[83,12],[87,14],[87,86],[83,88],[83,97],[79,97],[79,88],[75,86],[75,80],[25,80],[25,86],[21,88],[21,97],[17,97],[17,88],[13,86],[13,14],[17,12]],
-   extra:[{line:[[25,20],[25,80]]},{line:[[75,20],[75,80]]},{line:[[33,32],[67,32]]},{line:[[33,42],[67,42]]},{line:[[33,52],[67,52]]},{line:[[33,62],[67,62]]}]},
+   pts:[[15,5],[23,5],[23,16],[50,16],[77,16],[77,5],[85,5],[85,50],[85,95],[77,95],[77,84],[50,84],[23,84],[23,95],[15,95],[15,50]],
+   extra:[{line:[[23,16],[23,84]]},{line:[[77,16],[77,84]]},{line:[[15,13],[23,13]]},{line:[[15,87],[23,87]]},{line:[[77,13],[85,13]]},{line:[[77,87],[85,87]]},{line:[[32,32],[68,32]]},{line:[[32,42],[68,42]]},{line:[[32,52],[68,52]]},{line:[[32,62],[68,62]]}]},
  candle:{n:['נר','ליכט','Candle'],closed:true,
    pts:[[38,95],[38,40],[48,40],[46,32],[44,24],[47,16],[50,8],[53,16],[56,24],[54,32],[52,40],[62,40],[62,95]],
    extra:[{line:[[50,40],[50,33]]},{line:[[26,95],[74,95]]}]},
@@ -828,21 +827,41 @@ function cbInit(){
 
 /* ---------- connect the dots ---------- */
 function buildDots(){return {shape:SHAPES[val('dtShape')]||SHAPES.magen}}
+/* Place each dot's number where it is clearly closest to its own dot, away from other dots, the picture's lines and other numbers. */
+function placeDotLabels(pts,closed,extraSegs,labels,fs){
+  const segs=[];for(let i=0;i+1<pts.length;i++)segs.push([pts[i],pts[i+1]]);if(closed)segs.push([pts[pts.length-1],pts[0]]);
+  const allSegs=segs.concat(extraSegs);
+  const dSeg=(p,[a,b])=>{const vx=b[0]-a[0],vy=b[1]-a[1],L2=vx*vx+vy*vy||1;let t=((p[0]-a[0])*vx+(p[1]-a[1])*vy)/L2;t=Math.max(0,Math.min(1,t));return Math.hypot(p[0]-a[0]-t*vx,p[1]-a[1]-t*vy)};
+  const cx=pts.reduce((s,p)=>s+p[0],0)/pts.length,cy=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+  const placed=[];
+  const out=pts.map((p,i)=>{
+    const hw=labels[i].length*fs*.32+3,hh=fs*.5+2;
+    let best=null;
+    for(const R of [fs*1.0,fs*1.25,fs*1.55])for(let k=0;k<16;k++){const a=k*Math.PI/8,q=[p[0]+Math.cos(a)*(R+hw*.55*Math.abs(Math.cos(a))),p[1]+Math.sin(a)*(R+hh*.3*Math.abs(Math.sin(a)))];
+      const own=Math.hypot(q[0]-p[0],q[1]-p[1]);
+      let other=1e9;pts.forEach((o,j)=>{if(j!==i)other=Math.min(other,Math.hypot(q[0]-o[0],q[1]-o[1]))});
+      let line=1e9;for(const s of allSegs)line=Math.min(line,dSeg(q,s));
+      let lab=1e9;for(const l of placed)lab=Math.min(lab,Math.max(Math.abs(q[0]-l.x)-(hw+l.hw),Math.abs(q[1]-l.y)-(hh+l.hh)));
+      const out=((q[0]-cx)*Math.cos(a)+(q[1]-cy)*Math.sin(a))>0?2:0;
+      const score=Math.min(other-own*1.35,line-hh*.9,lab+4)+out-own*.05;
+      if(!best||score>best.score)best={x:q[0],y:q[1],score,own,other,line,lab,hw,hh};}
+    placed.push(best);return best;});
+  return out;
+}
 function dotsArt(sh,key){
   const W=600,k=W/100,P=p=>[+(p[0]*k).toFixed(1),+(p[1]*k).toFixed(1)];
-  const pts=sh.pts.map(P);
-  let alpha=L().dotsAlpha,useAbc=val('dtLabel')==='abc'&&pts.length<=alpha.length;
-  const cx=pts.reduce((s,p)=>s+p[0],0)/pts.length,cy=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+  const pts=sh.pts.map(P),alpha=L().dotsAlpha,useAbc=val('dtLabel')==='abc'&&pts.length<=alpha.length,fs=14;
+  const labels=pts.map((_,i)=>useAbc?alpha[i]:String(i+1));
+  const extraSegs=[];sh.extra.forEach(e=>{if(e.line){const q=e.line.map(P);for(let i=0;i+1<q.length;i++)extraSegs.push([q[i],q[i+1]])}else{const c=[e.circle[0]*k,e.circle[1]*k];extraSegs.push([c,c])}});
+  const pos=placeDotLabels(pts,sh.closed,extraSegs,labels,fs);
   const extra=sh.extra.map(e=>e.line?`<polyline points="${e.line.map(P).map(p=>p.join(',')).join(' ')}" fill="none" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`
     :`<circle cx="${(e.circle[0]*k).toFixed(1)}" cy="${(e.circle[1]*k).toFixed(1)}" r="${(e.circle[2]*k).toFixed(1)}" fill="none" stroke="#000" stroke-width="2.5"/>`).join('');
   const line=key?`<polyline points="${(sh.closed?pts.concat([pts[0]]):pts).map(p=>p.join(',')).join(' ')}" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`:'';
   const mark=$('dtStart').checked;
   const dots=pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${i===0&&mark?6:3.8}" fill="#000"/>`).join('');
-  const labels=pts.map((p,i)=>{let dx=p[0]-cx,dy=p[1]-cy;const len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;
-    const lab=useAbc?alpha[i]:String(i+1);
-    return `<span style="left:${(p[0]+dx*15).toFixed(1)}px;top:${(p[1]+dy*15).toFixed(1)}px;${i===0&&mark?'font-weight:700;font-size:16px':''}">${esc(lab)}</span>`}).join('');
-  return {html:`<div class="dots" style="width:${W}px;height:${W}px"><svg width="${W}" height="${W}" viewBox="-10 -10 ${W+20} ${W+20}" style="left:-10px;top:-10px;width:${W+20}px;height:${W+20}px">${extra}${line}${dots}</svg>${labels}</div>`,
-    fell:val('dtLabel')==='abc'&&!useAbc,n:pts.length};
+  const spans=pos.map((q,i)=>`<span style="left:${q.x.toFixed(1)}px;top:${q.y.toFixed(1)}px;${i===0&&mark?'font-weight:700;':''}">${esc(labels[i])}</span>`).join('');
+  return {html:`<div class="dots" style="width:${W}px;height:${W}px"><svg width="${W}" height="${W}" viewBox="0 0 ${W} ${W}" style="position:absolute;left:0;top:0;overflow:visible">${extra}${line}${dots}</svg>${spans}</div>`,
+    fell:val('dtLabel')==='abc'&&!useAbc,n:pts.length,pos,pts};
 }
 function viewDots(s){
   const a=dotsArt(s.shape,false),b=dotsArt(s.shape,true),nm=s.shape.n[{he:0,yi:1,en:2}[lang]];
