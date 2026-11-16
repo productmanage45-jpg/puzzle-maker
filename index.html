@@ -113,7 +113,7 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 .codekey i{font-size:19px;padding:3px 0;font-family:"Noto Sans Symbols 2","Noto Sans Symbols","Segoe UI Symbol",Heebo,sans-serif;font-style:normal}
 .codekey.num i,.codemsg.num i{font-family:Heebo,sans-serif;font-weight:700}
 .codemsg{display:flex;flex-wrap:wrap;gap:18px 30px;justify-content:center}
-.cword{display:flex;gap:4px}
+.cword{display:flex;flex-wrap:wrap;max-width:100%;gap:4px}
 .ccell{display:flex;flex-direction:column;align-items:center;width:40px}
 .ccell i{font-size:22px;font-style:normal;font-family:"Noto Sans Symbols 2","Noto Sans Symbols","Segoe UI Symbol",Heebo,sans-serif;height:30px;display:flex;align-items:center}
 .ccell b{width:38px;height:42px;border-bottom:2px solid #000;display:flex;align-items:flex-end;justify-content:center;font-size:26px}
@@ -256,7 +256,7 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
       <textarea id="cdWords" data-rebuild style="min-height:100px"></textarea>
       <label class="f" for="cdMode">Code</label>
       <select id="cdMode" data-rebuild><option value="sym">Picture symbols</option><option value="num">Numbers, mixed up</option><option value="ord">Numbers in alphabet order</option></select>
-      <label class="check"><input type="checkbox" id="cdOnly" data-rebuild> Key shows only the letters in the message</label>
+      <label class="check"><input type="checkbox" id="cdOnly"> Key shows only the letters in the message</label>
     </div>
 
     <div class="panel" data-type="scramble">
@@ -419,7 +419,7 @@ const rtl=()=>L().dir==='rtl';
 const YIKEEP={'א':'\u05B7\u05B8','ב':'\u05BF','כ':'\u05BC','ת':'\u05BC','ש':'\u05C2','ו':'\u05BC','י':'\u05B4','ײ':'\u05B7'};
 const yiMarksOn=()=>lang==='yi'&&$('yiMarks').checked;
 function letters(w,unfinal){
-  if(lang==='en')return Array.from(w.toUpperCase().replace(/[^A-Z]/g,''));
+  if(lang==='en')return Array.from(w.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z]/g,''));
   const s=w.normalize('NFC');let out;
   if(yiMarksOn()){
     out=[];
@@ -481,6 +481,9 @@ const SHAPES={
 /* ---------- word search ---------- */
 const DIRS={easy:[[0,1],[1,0]],medium:[[0,1],[1,0],[1,1],[1,-1]],hard:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]]};
 function buildSearch(){
+  let r=null;for(let t=0;t<15;t++){r=buildSearchOnce();if(r.empty||!(r.dupes&&r.dupes.length))break}return r;
+}
+function buildSearchOnce(){
   const seen=new Set(),words=[],skipped=[];
   $('wsWords').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean).forEach(d=>{
     const ch=letters(d,lang!=='en'&&$('wsUnfinal').checked);
@@ -515,11 +518,16 @@ function buildSearch(){
   let alpha=L().alpha;
   if(lang==='yi'&&!$('yiMarks').checked)alpha=[...new Set(alpha.map(c=>c[0]))];
   const fill=alpha.concat(words.flatMap(w=>w.ch));
-  best.g=best.g.map(row=>row.map(x=>x||fill[rnd(fill.length)]));
+  const blank=best.g.map(r=>r.slice()),allDirs=DIRS.hard;
+  const count=(g,ch)=>{let k=0;for(let r=0;r<n;r++)for(let c=0;c<n;c++)for(const [dr,dc] of allDirs){let ok=true;for(let i=0;i<ch.length;i++){const rr=r+dr*i,cc=c+dc*i;if(rr<0||rr>=n||cc<0||cc>=n||g[rr][cc]!==ch[i]){ok=false;break}}if(ok)k++}return ch.length>1&&ch.join('')===[...ch].reverse().join('')?k/2:k};
+  let filled,tries=0;
+  do{filled=blank.map(row=>row.map(x=>x||fill[rnd(fill.length)]));tries++}
+  while(tries<200&&best.placed.some(p=>count(filled,p.w.ch)>1));
+  best.g=filled;best.dupes=best.placed.filter(p=>count(filled,p.w.ch)>1).map(p=>p.w.display);
   best.words=words;best.skipped=skipped;return best;
 }
 function searchGrid(s,key){
-  const n=s.n,cell=Math.max(24,Math.min(46,Math.floor(640/n))),W=n*cell,R=rtl();
+  const n=s.n,cell=Math.max(14,Math.min(46,Math.floor(640/n))),W=n*cell,R=rtl();
   let svg='';
   if(key)svg=`<svg width="${W}" height="${W}" viewBox="0 0 ${W} ${W}">`+s.placed.map(p=>{
     const x=c=>(R?n-1-c:c)*cell+cell/2,y=r=>r*cell+cell/2,er=p.r+p.dr*(p.L-1),ec=p.c+p.dc*(p.L-1);
@@ -534,7 +542,7 @@ function viewSearch(s){
     bank=`<div class="wordbank">${l.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`;}
   const miss=s.missed.map(w=>w.display);
   return {pages:[head(val('wsTitle'),val('wsInstr'))+searchGrid(s,false)+bank],keys:[keyHead(val('wsTitle'))+searchGrid(s,true)],skipped:s.skipped,
-    msg:miss.length?`Couldn’t fit ${list(miss)}. Choose a bigger grid or let words run more ways.`:`All ${s.placed.length} words are in the grid.`,ok:!miss.length};
+    msg:(miss.length?`Couldn’t fit ${list(miss)}. Choose a bigger grid or let words run more ways.`:`All ${s.placed.length} words are in the grid.`)+(s.dupes&&s.dupes.length?` ${list(s.dupes)} appears more than once in the grid (the word is too short); press New layout.`:''),ok:!miss.length&&!(s.dupes&&s.dupes.length)};
 }
 
 /* ---------- crossword ---------- */
@@ -580,7 +588,7 @@ function buildCross(){
   return {grid,H,W,across,down,missed:best.missed,skipped};
 }
 function crossGrid(s,key){
-  const cell=Math.max(24,Math.min(44,Math.floor(640/s.W)));
+  const cell=Math.max(14,Math.min(44,Math.floor(640/s.W),Math.floor(560/s.H)));
   const cells=s.grid.flatMap((row,r)=>row.map((x,c)=>[x,r,c])).map(([x,r,c])=>x?`<div class="box" style="${r===0||!s.grid[r-1][c]?'border-top-width:1.5px;':''}${c===0||!s.grid[r][c-1]?'border-inline-start-width:1.5px;':''}">${x.num?`<i style="font-size:${Math.max(9,Math.round(cell*.3))}px">${x.num}</i>`:''}${key?x.ch:''}</div>`:'<div></div>').join('');
   return `<div class="cwgrid" style="grid-template-columns:repeat(${s.W},${cell}px);grid-auto-rows:${cell}px;font-size:${Math.round(cell*.58)}px;width:${s.W*cell}px">${cells}</div>`;
 }
@@ -589,9 +597,9 @@ function viewCross(s){
   const showLen=$('cwLen').checked;
   const li=x=>`<li><b>${x.num}.</b><span>${esc(x.e.clue||'')}${showLen?` <span class="len">(${x.e.ch.length})</span>`:''}</span></li>`;
   const clues=`<div class="clues"><div><h3>${L().across}</h3><ol>${s.across.map(li).join('')}</ol></div><div><h3>${L().down}</h3><ol>${s.down.map(li).join('')}</ol></div></div>`;
-  const miss=s.missed.map(e=>e.display),n=s.across.length+s.down.length;
+  const miss=s.missed.map(e=>e.display),n=s.across.length+s.down.length,noClue=[...s.across,...s.down].filter(x=>!x.e.clue).map(x=>x.e.display);
   return {pages:[head(val('cwTitle'),val('cwInstr'))+crossGrid(s,false)+clues],keys:[keyHead(val('cwTitle'))+crossGrid(s,true)],skipped:s.skipped,
-    msg:miss.length?`Couldn’t connect ${list(miss)}. It needs a letter in common with the other words. Press New layout to retry, or add a word that crosses it.`:`All ${n} words are connected.`,ok:!miss.length};
+    msg:(miss.length?`Couldn’t connect ${list(miss)}. It needs a letter in common with the other words. Press New layout to retry, or add a word that crosses it.`:`All ${n} words are connected.`)+(noClue.length?` No clue for ${list(noClue)}: add “- clue” after the word.`:''),ok:!miss.length&&!noClue.length};
 }
 
 /* ---------- maze ---------- */
@@ -756,25 +764,25 @@ function cbProb(seed,i,v,mode){const r=mulberry(seed+i*7919),R=k=>Math.floor(r()
   if(mode==='sub'){const b=1+R(9);return `${v+b}−${b}`}
   if(mode==='mul'){const f=[];for(let a=2;a<v;a++)if(v%a===0)f.push(a);const a=f[R(f.length)];return `${a}×${v/a}`}
   return null}
-let cbKeyCache=null;
+let cbKeyCache=null;const cbHist=[];const cbSnap=()=>{cbHist.push(JSON.stringify(CB.labels));if(cbHist.length>100)cbHist.shift()};
 function cbKeyImage(){
   const sig=JSON.stringify([CB.img&&CB.img.length,CB.w,CB.labels,CB.nums]);if(cbKeyCache&&cbKeyCache.sig===sig)return cbKeyCache.src;
   if(!CB.el)return null;
   const c=document.createElement('canvas');c.width=CB.w;c.height=CB.h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,CB.w,CB.h);x.drawImage(CB.el,0,0,CB.w,CB.h);
-  const im=x.getImageData(0,0,CB.w,CB.h),d=im.data,W=CB.w,H=CB.h,wall=new Uint8Array(W*H),done=new Uint8Array(W*H);
+  const im=x.getImageData(0,0,CB.w,CB.h),d=im.data,W=CB.w,H=CB.h,wall=new Uint8Array(W*H),done=new Uint8Array(W*H),conflicts=new Set();
   for(let i=0;i<W*H;i++)wall[i]=(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11)<150?1:0;
   for(const l of CB.labels){const num=CB.nums[l.n];if(!num)continue;const hex=CB_COLORS[num.c][0],rr=parseInt(hex.slice(1,3),16),gg=parseInt(hex.slice(3,5),16),bb=parseInt(hex.slice(5,7),16);
     let sx=Math.round(l.x*W),sy=Math.round(l.y*H),seed=-1;
     for(let rad=0;rad<12&&seed<0;rad++)for(let dy=-rad;dy<=rad&&seed<0;dy++)for(let dx=-rad;dx<=rad&&seed<0;dx++){const px=sx+dx,py=sy+dy;if(px>=0&&py>=0&&px<W&&py<H&&!wall[py*W+px])seed=py*W+px}
-    if(seed<0||done[seed])continue;
-    const st=[seed];done[seed]=1;
+    if(seed<0)continue;if(done[seed]){if(done[seed]!==l.n+1)conflicts.add(l.n);continue}
+    const st=[seed];const tag=l.n+1;done[seed]=tag;
     while(st.length){const p=st.pop();d[p*4]=rr;d[p*4+1]=gg;d[p*4+2]=bb;const px=p%W;
-      if(px>0&&!wall[p-1]&&!done[p-1]){done[p-1]=1;st.push(p-1)}
-      if(px<W-1&&!wall[p+1]&&!done[p+1]){done[p+1]=1;st.push(p+1)}
-      if(p>=W&&!wall[p-W]&&!done[p-W]){done[p-W]=1;st.push(p-W)}
-      if(p<W*(H-1)&&!wall[p+W]&&!done[p+W]){done[p+W]=1;st.push(p+W)}}}
+      if(px>0&&!wall[p-1]&&!done[p-1]){done[p-1]=tag;st.push(p-1)}
+      if(px<W-1&&!wall[p+1]&&!done[p+1]){done[p+1]=tag;st.push(p+1)}
+      if(p>=W&&!wall[p-W]&&!done[p-W]){done[p-W]=tag;st.push(p-W)}
+      if(p<W*(H-1)&&!wall[p+W]&&!done[p+W]){done[p+W]=tag;st.push(p+W)}}}
   x.putImageData(im,0,0);
-  cbKeyCache={sig,src:c.toDataURL('image/png')};return cbKeyCache.src;
+  cbKeyCache={sig,src:c.toDataURL('image/png'),conflicts:conflicts.size};return cbKeyCache.src;
 }
 function viewCustom(s){
   const mode=val('cbLabel');
@@ -783,13 +791,15 @@ function viewCustom(s){
   const vals=cbVals(s.seed,mode,CB.nums.length),abc=L().dotsAlpha,li={he:1,yi:2,en:3}[lang];
   const lab=k=>mode==='abc'?(abc[k]||String(k+1)):String(vals[k]);
   const text=(l,i)=>{const p=cbProb(s.seed,i,vals[l.n],mode);return p||lab(l.n)};
-  const spans=CB.labels.map((l,i)=>CB.nums[l.n]?`<span data-i="${i}" style="left:${(l.x*100).toFixed(2)}%;top:${(l.y*100).toFixed(2)}%;font-size:${Math.round(l.s*W/640)}px">${esc(text(l,i))}</span>`:'').join('');
+  const spans=CB.labels.map((l,i)=>CB.nums[l.n]?`<span data-i="${i}" style="left:${(l.x*100).toFixed(2)}%;top:${(l.y*100).toFixed(2)}%;font-size:${Math.max(11,Math.round(l.s*W/640))}px">${esc(text(l,i))}</span>`:'').join('');
   const keyRow=`<div class="cbkey">${CB.nums.map((nm,k)=>`<div><b>${esc(lab(k))}</b><i style="background:${CB_COLORS[nm.c][0]}"></i><span>${esc(CB_COLORS[nm.c][li])}</span></div>`).join('')}</div>`;
   const box=(inner,cls)=>`<div class="center"><div class="${cls}" style="position:relative;width:${W}px;height:${H}px">${inner}</div></div>`;
   const keySrc=cbKeyImage();
   return {pages:[head(val('cbTitle'),val('cbInstr'))+keyRow+box(`<img alt="" src="${CB.img}" style="width:100%;height:100%;display:block">${spans}`,'cbcustom')],
     keys:keySrc?[keyHead(val('cbTitle'))+box(`<img alt="" src="${keySrc}" style="width:100%;height:100%;display:block">`,'')]:[],
-    msg:`Click the picture to place ${esc(lab(CB.active))}. ${CB.labels.length} ${CB.labels.length===1?'number':'numbers'} placed.`,ok:true};
+    msg:!CB.labels.length?`Click the picture to place ${esc(lab(CB.active))}. No numbers placed yet.`:
+      (cbKeyCache&&cbKeyCache.conflicts?`Two different numbers are in the same area of the picture, so the answer key can only use one color there. Move or remove one of them. `:'')+`Click the picture to place ${esc(lab(CB.active))}. ${CB.labels.length} ${CB.labels.length===1?'number':'numbers'} placed.`,
+    ok:CB.labels.length>0&&!(cbKeyCache&&cbKeyCache.conflicts)};
 }
 function cbPanel(){
   const custom=val('cbPic')==='custom';
@@ -810,14 +820,14 @@ function cbInit(){
     r.readAsDataURL(f);e.target.value=''};
   $('cbAddNum').onclick=()=>{if(CB.nums.length>=11)return;const used=CB.nums.map(n=>n.c),next=Object.keys(CB_COLORS).find(k=>k!=='.'&&!used.includes(k))||'R';
     CB.nums.push({c:next});CB.active=CB.nums.length-1;saveCB();cbPanel();render()};
-  $('cbDelNum').onclick=()=>{if(CB.nums.length<=1)return;const n=CB.nums.length-1;CB.nums.pop();CB.labels=CB.labels.filter(l=>l.n!==n);CB.active=Math.min(CB.active,CB.nums.length-1);saveCB();cbPanel();render()};
-  $('cbUndo').onclick=()=>{CB.labels.pop();saveCB();render()};
-  $('cbClear').onclick=()=>{if(CB.labels.length&&confirm('Take all the numbers off the picture?')){CB.labels=[];saveCB();render()}};
+  $('cbDelNum').onclick=()=>{if(CB.nums.length<=1)return;const n=CB.nums.length-1;cbSnap();CB.nums.pop();CB.labels=CB.labels.filter(l=>l.n!==n);CB.active=Math.min(CB.active,CB.nums.length-1);saveCB();cbPanel();render()};
+  $('cbUndo').onclick=()=>{if(!cbHist.length)return;CB.labels=JSON.parse(cbHist.pop());saveCB();render()};
+  $('cbClear').onclick=()=>{if(CB.labels.length&&confirm('Take all the numbers off the picture?')){cbSnap();CB.labels=[];saveCB();render()}};
   $('cbSize').oninput=()=>{$('cbSizeVal').textContent=`(${$('cbSize').value})`};
   $('cbPic').addEventListener('change',cbPanel);
   $('pages').addEventListener('click',e=>{
     const box=e.target.closest('.cbcustom');if(!box||box.closest('.key'))return;
-    const sp=e.target.closest('span[data-i]');
+    const sp=e.target.closest('span[data-i]');cbSnap();
     if(sp){CB.labels.splice(+sp.dataset.i,1)}
     else{const r=box.getBoundingClientRect();CB.labels.push({x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,n:CB.active,s:+$('cbSize').value})}
     saveCB();render();
@@ -892,6 +902,7 @@ function traceRow(text,size,repeat,style,ruled,blank){
   const x=c.getContext('2d');x.scale(SC,SC);
   const script=traceFont()==='script',fam=script?'"AlephScriptDotted"':lang==='en'?'Andika, Heebo, Arial, sans-serif':'Heebo, Arial, sans-serif';
   let fs=size;const setFont=ctx=>ctx.font=`400 ${fs}px ${fam}`;setFont(x);
+  if(!blank&&text){const tw0=x.measureText(text).width;if(tw0>W-20){fs=Math.max(14,Math.floor(fs*(W-20)/tw0));setFont(x)}}
   const base=h*0.74,cap=x.measureText(lang==='en'?'H':'ב').actualBoundingBoxAscent||fs*.7;
   if(ruled){x.strokeStyle='#9a9a9a';x.lineWidth=1.2;
     const ln=y=>{x.beginPath();x.moveTo(4,y);x.lineTo(W-4,y);x.stroke()};
@@ -899,7 +910,7 @@ function traceRow(text,size,repeat,style,ruled,blank){
     if(lang==='en'){const xh=x.measureText('x').actualBoundingBoxAscent||fs*.5;x.setLineDash([7,6]);ln(base-xh);x.setLineDash([])}}
   if(!blank&&text){
     const R=rtl();
-    let tw=x.measureText(text).width;if(tw>W-20){fs=Math.floor(fs*(W-20)/tw);setFont(x);tw=x.measureText(text).width}
+    const tw=x.measureText(text).width;
     let n=repeat;while(n>1&&n*tw+(n-1)*fs*.8>W-20)n--;
     const slot=(W-20)/n,color=style==='gray'?'#b5b5b5':'#222';
     const place=(ctx)=>{ctx.direction=R?'rtl':'ltr';ctx.textAlign=R?'right':'left';for(let i=0;i<n;i++){const pos=10+i*slot;ctx.fillText(text,R?W-pos:pos,base)}};
@@ -925,11 +936,10 @@ function viewTrace(){
   const words=lines('trWords').map(noPeMarks);
   if(!words.length)return emptyOut('Add at least one word to trace.');
   const size=+val('trSize'),rep=+val('trRepeat'),style=val('trStyle'),ruled=$('trLines').checked,prac=$('trPractice').checked;
-  const rows=[];
-  words.forEach(w=>{rows.push(traceRow(w,size,rep,style,ruled,false));if(prac)rows.push(traceRow('',size,rep,style,ruled,true))});
+  const groups=words.map(w=>{const g=[traceRow(w,size,rep,style,ruled,false)];if(prac)g.push(traceRow('',size,rep,style,ruled,true));return g});
   const pages=[];let cur=head(val('trTitle'),val('trInstr')),used=150;
-  rows.forEach(r=>{const hh=r.h+6;if(used+hh>950){pages.push(cur);cur='';used=0}
-    cur+=`<div class="trace"><img alt="" src="${r.src}" style="height:${r.h}px;object-fit:contain"></div>`;used+=hh;});
+  groups.forEach(g=>{const hh=g.reduce((s,r)=>s+r.h+6,0);if(used+hh>950&&cur){pages.push(cur);cur='';used=0}
+    for(const r of g)cur+=`<div class="trace"><img alt="" src="${r.src}" style="height:${r.h}px;object-fit:contain"></div>`;used+=hh;});
   pages.push(cur);
   return {pages,keys:[],msg:`${words.length} ${words.length===1?'line':'lines'} on ${pages.length} ${pages.length===1?'page':'pages'}.`,ok:true};
 }
@@ -942,14 +952,14 @@ function buildCode(){
   if(!used.size)return {empty:true};
   const order=L().order;
   let core=L().core;if(lang==='yi'&&!$('yiMarks').checked)core=[...new Set(core.map(c=>c[0]))];
-  const set=new Set($('cdOnly').checked?used:[...core,...used]);
-  const keyList=[...set].sort((a,b)=>{const ia=order.indexOf(a),ib=order.indexOf(b);return (ia<0?999:ia)-(ib<0?999:ib)});
-  let mode=val('cdMode');if(mode==='sym'&&keyList.length>SYMS.length)mode='num';
-  const vals=mode==='sym'?shuffle(SYMS.slice()).slice(0,keyList.length):mode==='num'?shuffle(keyList.map((_,i)=>i+1)):keyList.map((_,i)=>i+1);
-  const map={};keyList.forEach((l,i)=>map[l]=vals[i]);
-  return {msg,keyList,map,mode};
+  const full=[...new Set([...core,...used])].sort((a,b)=>{const ia=order.indexOf(a),ib=order.indexOf(b);return (ia<0?999:ia)-(ib<0?999:ib)});
+  let mode=val('cdMode');if(mode==='sym'&&full.length>SYMS.length)mode='num';
+  const vals=mode==='sym'?shuffle(SYMS.slice()).slice(0,full.length):mode==='num'?shuffle(full.map((_,i)=>i+1)):full.map((_,i)=>i+1);
+  const map={};full.forEach((l,i)=>map[l]=vals[i]);
+  return {msg,full,used,map,mode};
 }
 function codeHtml(s,key){
+  s.keyList=$('cdOnly').checked?s.full.filter(l=>s.used.has(l)):s.full;
   const num=s.mode!=='sym'?' num':'';
   const k=`<div class="codekey${num}">${s.keyList.map(l=>`<div><b>${esc(l)}</b><i>${esc(s.map[l])}</i></div>`).join('')}</div>`;
   const m=s.msg.map(line=>`<div class="codemsg${num}">${line.map(w=>`<div class="cword">${w.map(l=>`<div class="ccell"><i>${esc(s.map[l])}</i><b>${key?esc(l):''}</b></div>`).join('')}</div>`).join('')}</div>`).join('<div style="height:18px"></div>');
@@ -957,10 +967,13 @@ function codeHtml(s,key){
 }
 function viewCode(s){
   if(s.empty)return emptyOut('Type a secret message to encode.');
+  s.keyList=$('cdOnly').checked?s.full.filter(l=>s.used.has(l)):s.full;
   return {pages:[head(val('cdTitle'),val('cdInstr'))+codeHtml(s,false)],keys:[keyHead(val('cdTitle'))+codeHtml(s,true)],
     msg:`${s.msg.flat().length} words, ${s.keyList.length} letters in the key.`,ok:true};
 }
 
+/* split long lists over several pages instead of shrinking one page */
+function pagesOf(items,first,next){const out=[];let i=0,n=first;while(i<items.length||!out.length){out.push(items.slice(i,i+n).map((x,k)=>[x,i+k]));i+=n;n=next}return out}
 /* ---------- word scramble ---------- */
 function parseWords(id){const out=[],skipped=[];lines(id).forEach(l=>{const [w,h]=splitClue(l),ch=letters(w,false);if(ch.length<2)skipped.push(w);else out.push({w,h,ch})});return {out,skipped}}
 function buildScramble(){
@@ -970,8 +983,11 @@ function buildScramble(){
 }
 function viewScramble(s){
   if(!s.items.length)return {...emptyOut('Add at least one word to scramble.'),skipped:s.skipped};
-  const body=key=>`<div class="rows">${s.items.map((o,i)=>`<div class="rowi"><b>${i+1}.</b><div class="tiles">${o.s.map(c=>`<div class="tile">${esc(c)}</div>`).join('')}</div><div class="ansline">${key?esc(o.w):''}</div>${o.h?`<div class="hintt">${esc(o.h)}</div>`:''}</div>`).join('')}</div>`;
-  return {pages:[head(val('scTitle'),val('scInstr'))+body(false)],keys:[keyHead(val('scTitle'))+body(true)],skipped:s.skipped,msg:`${s.items.length} words.`,ok:true};
+  const hints=s.items.some(o=>o.h),parts=pagesOf(s.items,hints?8:11,hints?10:13);
+  const body=(part,key)=>`<div class="rows">${part.map(([o,i])=>`<div class="rowi"><b>${i+1}.</b><div class="tiles">${o.s.map(c=>`<div class="tile">${esc(c)}</div>`).join('')}</div><div class="ansline">${key?esc(o.w):''}</div>${o.h?`<div class="hintt">${esc(o.h)}</div>`:''}</div>`).join('')}</div>`;
+  const same=s.items.filter(o=>new Set(o.ch).size<2).map(o=>o.w);
+  return {pages:parts.map((p,k)=>(k?'':head(val('scTitle'),val('scInstr')))+body(p,false)),keys:parts.map((p,k)=>(k?'':keyHead(val('scTitle')))+body(p,true)),skipped:s.skipped,
+    msg:`${s.items.length} words.`+(same.length?` ${list(same)} can’t be scrambled (all one letter).`:''),ok:!same.length};
 }
 
 /* ---------- missing letters ---------- */
@@ -983,24 +999,32 @@ function buildMissing(){
 }
 function viewMissing(s){
   if(!s.items.length)return {...emptyOut('Add at least one word.'),skipped:s.skipped};
-  const body=key=>`<div class="rows">${s.items.map((o,i)=>`<div class="rowi"><b>${i+1}.</b><div class="tiles">${o.ch.map((c,j)=>o.hide.has(j)?`<div class="tile gap">${key?`<em>${esc(c)}</em>`:''}</div>`:`<div class="tile">${esc(c)}</div>`).join('')}</div>${o.h?`<div class="hintt">${esc(o.h)}</div>`:''}</div>`).join('')}</div>`;
+  const hints=s.items.some(o=>o.h),parts=pagesOf(s.items,hints?8:11,hints?10:13);
+  const body=(part,key)=>`<div class="rows">${part.map(([o,i])=>`<div class="rowi"><b>${i+1}.</b><div class="tiles">${o.ch.map((c,j)=>o.hide.has(j)?`<div class="tile gap">${key?`<em>${esc(c)}</em>`:''}</div>`:`<div class="tile">${esc(c)}</div>`).join('')}</div>${o.h?`<div class="hintt">${esc(o.h)}</div>`:''}</div>`).join('')}</div>`;
   let bank='';
   if($('msBank').checked){const all=shuffle(s.items.flatMap(o=>o.ch.filter((_,j)=>o.hide.has(j))));bank=`<div class="bank">${all.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`}
-  return {pages:[head(val('msTitle'),val('msInstr'))+body(false)+bank],keys:[keyHead(val('msTitle'))+body(true)],skipped:s.skipped,msg:`${s.items.length} words.`,ok:true};
+  return {pages:parts.map((p,k)=>(k?'':head(val('msTitle'),val('msInstr')))+body(p,false)+(k===parts.length-1?bank:'')),keys:parts.map((p,k)=>(k?'':keyHead(val('msTitle')))+body(p,true)),skipped:s.skipped,msg:`${s.items.length} words.`,ok:true};
 }
 
 /* ---------- matching ---------- */
 function buildMatch(){
   const pairs=[],bad=[];lines('mtWords').forEach(l=>{const [w,m]=splitClue(l);if(m)pairs.push({w,m});else bad.push(w)});
-  let order=[...pairs.keys()];if(pairs.length>1)for(let t=0;t<25;t++){shuffle(order);if(order.some((v,i)=>v!==i))break}
-  return {pairs,order,bad};
+  /* each page is its own matching set, so no line has to cross to another page */
+  const groups=[];for(let i=0;i<pairs.length;i+=14){const idx=[...Array(Math.min(14,pairs.length-i)).keys()].map(k=>k+i);let order=idx.slice();
+    if(idx.length>1)for(let t=0;t<25;t++){shuffle(order);if(order.some((v,k)=>v!==idx[k]))break}groups.push({idx,order})}
+  const norm=x=>x.trim().toLowerCase();
+  const dupW=pairs.map(p=>p.w).filter((w,k,a)=>a.findIndex(z=>norm(z)===norm(w))!==k),dupM=pairs.map(p=>p.m).filter((m,k,a)=>a.findIndex(z=>norm(z)===norm(m))!==k);
+  return {pairs,groups,bad,dup:[...new Set([...dupW,...dupM])]};
 }
 function viewMatch(s){
   if(s.pairs.length<2)return emptyOut('Add at least two lines like “word - meaning”.');
-  const body=key=>`<div class="match">${s.pairs.map((p,i)=>{const q=s.pairs[s.order[i]];
-    return `<div class="mw l"><span><b>${i+1}.</b> ${esc(p.w)}</span><span class="pt">●</span></div><div></div><div class="mw r"><span class="pt">●</span><span style="flex:1"><span class="mnum">${key?s.order[i]+1:''}</span> ${esc(q.m)}</span></div>`}).join('')}</div>`;
-  return {pages:[head(val('mtTitle'),val('mtInstr'))+body(false)],keys:[keyHead(val('mtTitle'))+body(true)],
-    msg:s.bad.length?`Skipped ${list(s.bad)}: needs a meaning after a dash.`:`${s.pairs.length} pairs.`,ok:!s.bad.length};
+  const body=(g,key)=>`<div class="match">${g.idx.map((i,k)=>{const p=s.pairs[i],q=s.pairs[g.order[k]];
+    return `<div class="mw l"><span><b>${i+1}.</b> ${esc(p.w)}</span><span class="pt">●</span></div><div></div><div class="mw r"><span class="pt">●</span><span style="flex:1"><span class="mnum">${key?g.order[k]+1:''}</span> ${esc(q.m)}</span></div>`}).join('')}</div>`;
+  const msgs=[`${s.pairs.length} pairs.`];
+  if(s.bad.length)msgs.push(`Skipped ${list(s.bad)}: needs a meaning after a dash.`);
+  if(s.dup.length)msgs.push(`${list(s.dup)} appears twice, so two answers would look the same. Make each word and meaning different.`);
+  return {pages:s.groups.map((g,k)=>(k?'':head(val('mtTitle'),val('mtInstr')))+body(g,false)),keys:s.groups.map((g,k)=>(k?'':keyHead(val('mtTitle')))+body(g,true)),
+    msg:msgs.join(' '),ok:!s.bad.length&&!s.dup.length};
 }
 
 /* ---------- bingo ---------- */
@@ -1008,19 +1032,21 @@ function buildBingo(){
   const words=[...new Set(lines('bgWords'))],n=+val('bgSize'),free=$('bgFree').checked&&n%2===1,need=n*n-(free?1:0);
   const count=Math.max(1,Math.min(60,parseInt(val('bgCount'))||1));
   if(words.length<need)return {short:true,need,have:words.length,n};
-  const cards=[];for(let i=0;i<count;i++)cards.push(shuffle(words.slice()).slice(0,need));
-  return {words,n,free,cards};
+  const cards=[],seen=new Set();let tries=0;
+  while(cards.length<count&&tries<count*200){tries++;const c=shuffle(words.slice()).slice(0,need),sig=c.join('\u0001');if(seen.has(sig))continue;seen.add(sig);cards.push(c)}
+  return {words,n,free,cards,want:count};
 }
 function viewBingo(s){
   if(s.short)return {...emptyOut(`A ${s.n} × ${s.n} card needs at least ${s.need} words. You have ${s.have}.`),msg:`Add ${s.need-s.have} more ${s.need-s.have===1?'word':'words'}, or choose a smaller card.`,ok:false};
-  const per=+val('bgPer'),gw=per===2?400:620,cell=Math.floor(gw/s.n),mid=Math.floor(s.n*s.n/2);
+  const per=+val('bgPer'),gw=per===2?350:620,cell=Math.floor(gw/s.n),mid=Math.floor(s.n*s.n/2);
   const card=ws=>{let k=0;const cells=[];
     for(let i=0;i<s.n*s.n;i++){if(s.free&&i===mid){cells.push(`<div class="bfree" style="font-size:${Math.round(cell*.2)}px">${esc(L().free)}</div>`);continue}
       const w=ws[k++],fs=Math.max(11,Math.floor(Math.min(cell*.26,cell*1.7/Math.max(3,w.length))));cells.push(`<div style="font-size:${fs}px">${esc(w)}</div>`)}
     return `<div class="bcard">${head(val('bgTitle'),'')}<div class="bgrid" style="grid-template-columns:repeat(${s.n},${cell}px);grid-auto-rows:${cell}px">${cells.join('')}</div></div>`};
   const pages=[];for(let i=0;i<s.cards.length;i+=per)pages.push(s.cards.slice(i,i+per).map(card).join(''));
-  const slips=keyHead(val('bgTitle'),L().caller)+`<div class="slips">${s.words.map(w=>`<div>${esc(w)}</div>`).join('')}</div>`;
-  return {pages,keys:[slips],msg:`${s.cards.length} different cards on ${pages.length} ${pages.length===1?'page':'pages'}.`,ok:true};
+  const slips=pagesOf(s.words,52,60).map((p,k)=>(k?'':keyHead(val('bgTitle'),L().caller))+`<div class="slips">${p.map(([w])=>`<div>${esc(w)}</div>`).join('')}</div>`);
+  const short=s.cards.length<s.want;
+  return {pages,keys:slips,msg:`${s.cards.length} different cards on ${pages.length} ${pages.length===1?'page':'pages'}.`+(short?` Only ${s.cards.length} different cards are possible with these words; add more words for ${s.want}.`:''),ok:!short};
 }
 
 /* ---------- wiring ---------- */
@@ -1120,8 +1146,8 @@ const baseName=()=>{const el=$(TYPES.find(t=>t[0]===type)[2]+'Title');const t=(e
 const toBlob=c=>new Promise(r=>c.toBlob(r,'image/jpeg',0.92));
 async function busy(btn,fn){
   if(typeof html2canvas==='undefined'){note('The download tools didn’t load. Check the internet connection and reload.');return}
-  const label=btn.textContent;btn.disabled=true;
-  try{await fn(p=>btn.textContent=p)}catch(e){note('Something went wrong making the file. Try again.')}
+  flushRender();const label=btn.textContent;btn.disabled=true;
+  try{await fn(p=>btn.textContent=p)}catch(e){note(e&&e.userMsg?e.userMsg:'Something went wrong making the file. Try again.')}
   finally{btn.disabled=false;btn.textContent=label}
 }
 $('btnPdf').onclick=()=>busy($('btnPdf'),async prog=>{
@@ -1132,7 +1158,8 @@ $('btnPdf').onclick=()=>busy($('btnPdf'),async prog=>{
 });
 $('btnJpg').onclick=()=>busy($('btnJpg'),async prog=>{
   const ps=sheets();
-  if(ps.length>2&&window.JSZip){
+  if(ps.length>2&&!window.JSZip){const e=new Error('zip');e.userMsg='Saving many pages as pictures needs a zip tool that didn’t load. Reload the page, or use Download PDF.';throw e}
+  if(ps.length>2){
     const zip=new JSZip();
     for(let i=0;i<ps.length;i++){prog(`Page ${i+1} of ${ps.length}…`);zip.file(`${baseName()} ${String(i+1).padStart(2,'0')}.jpg`,await toBlob(await pageCanvas(ps[i])))}
     await saveFile(baseName()+'.zip',await zip.generateAsync({type:'blob'}));return;
@@ -1154,7 +1181,8 @@ FIELDS.forEach(id=>{const el=$(id);
 });
 document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
 $('btnNew').onclick=rebuild;
-$('btnPrint').onclick=()=>window.print();
+function flushRender(){clearTimeout(timer);render()}
+$('btnPrint').onclick=()=>{flushRender();window.print()};
 fillShapes();load();putContent(perLang[lang]);applyLang();
 cbInit();
 setType(type);
