@@ -148,6 +148,13 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 .cbkey div{display:flex;align-items:center;gap:6px}
 .cbkey b{font-family:Heebo,sans-serif;min-width:1.4em;text-align:center}
 .cbkey i{display:inline-block;width:20px;height:20px;border:1px solid #000;border-radius:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.cbcustom{cursor:crosshair;user-select:none;-webkit-user-select:none}
+.cbcustom span{position:absolute;transform:translate(-50%,-50%);font-family:Heebo,sans-serif;font-weight:700;line-height:1;color:#000;cursor:pointer;white-space:nowrap}
+.cbnum{display:flex;align-items:center;gap:8px;margin:6px 0}
+.cbnum button{width:40px;height:34px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:700 16px Heebo,sans-serif;cursor:pointer}
+.cbnum button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.cbnum i{width:22px;height:22px;border-radius:4px;border:1px solid var(--line)}
+.cbnum select{flex:1}
 @media print{
   @page{size:letter;margin:0}
   :root{padding:0}
@@ -291,10 +298,21 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
       <label class="f" for="cbTitle">Title</label><input type="text" id="cbTitle" dir="auto">
       <label class="f" for="cbInstr">Instructions</label><input type="text" id="cbInstr" dir="auto">
       <label class="f" for="cbPic">Picture</label>
-      <select id="cbPic" data-rebuild><option value="apple">Apple</option><option value="house">House</option><option value="fish">Fish</option><option value="candle">Candle</option><option value="dreidel">Dreidel</option><option value="menorah">Menorah</option><option value="magen">Magen David</option><option value="heart">Heart</option></select>
+      <select id="cbPic" data-rebuild><option value="apple">Apple</option><option value="house">House</option><option value="fish">Fish</option><option value="candle">Candle</option><option value="dreidel">Dreidel</option><option value="menorah">Menorah</option><option value="magen">Magen David</option><option value="heart">Heart</option><option value="custom">Your own picture…</option></select>
+      <div id="cbCustomBox" class="hidden">
+        <label class="f" for="cbFile">Your picture</label>
+        <input type="file" id="cbFile" accept="image/*">
+        <p class="small">Black lines on white work best. Pick a number below, then click the picture in the preview to put it there. Click a number on the picture to take it off.</p>
+        <label class="f">Numbers and colors</label>
+        <div id="cbNums"></div>
+        <div class="btns"><button type="button" class="btn-alt" id="cbAddNum">Add a number</button><button type="button" class="btn-alt" id="cbDelNum">Remove last</button></div>
+        <label class="f" for="cbSize">Size of new numbers <span id="cbSizeVal" class="hint"></span></label>
+        <input type="range" id="cbSize" min="10" max="44" value="18" style="width:100%">
+        <div class="btns"><button type="button" class="btn-alt" id="cbUndo">Undo</button><button type="button" class="btn-alt" id="cbClear">Clear numbers</button></div>
+      </div>
       <label class="f" for="cbLabel">Squares show</label>
       <select id="cbLabel" data-rebuild><option value="num">Numbers</option><option value="abc">Letters</option><option value="add">Addition problems</option><option value="sub">Subtraction problems</option><option value="mul">Multiplication problems</option></select>
-      <label class="check"><input type="checkbox" id="cbBg" data-rebuild> Number the background squares too (white)</label>
+      <label class="check" id="cbBgRow"><input type="checkbox" id="cbBg" data-rebuild> Number the background squares too (white)</label>
     </div>
 
     <label class="check hidden" id="marksRow"><input type="checkbox" id="yiMarks" data-rebuild checked> Keep Yiddish letter marks (אַ אָ)</label>
@@ -687,6 +705,7 @@ function cbPic(k){if(CB_PICS[k])return CB_PICS[k];
   if(k==='heart')return rasterPoly(SHAPES.heart.pts,16,SHAPES.heart.pts.map(([x,y])=>[30+(x-30)*.35,32+(y-32)*.35]),'R','I');}
 const CB_MUL=[12,16,18,20,24,28,30,32,36,40,42,48];
 function buildColor(){
+  if(val('cbPic')==='custom')return {custom:true,seed:Math.floor(Math.random()*1e9)};
   const g=cbPic(val('cbPic'))||cbPic('apple'),bg=$('cbBg').checked,mode=val('cbLabel');
   const used=[];g.join('').split('').forEach(ch=>{if((ch!=='.'||bg)&&!used.includes(ch))used.push(ch)});
   let vals;
@@ -703,6 +722,7 @@ function buildColor(){
   return {g,cells,used,valOf,mode};
 }
 function viewColor(s){
+  if(s.custom)return viewCustom(s);
   const n=s.g.length,cell=Math.floor(640/n),li={he:1,yi:2,en:3}[lang],abc=L().dotsAlpha,isAbc=s.mode==='abc';
   const lab=ch=>isAbc?abc[s.used.indexOf(ch)]:s.valOf[ch];
   const grid=key=>`<div class="center"><div class="cbgrid" style="grid-template-columns:repeat(${n},${cell}px);grid-auto-rows:${cell}px">${s.cells.flat().map(x=>{
@@ -712,6 +732,93 @@ function viewColor(s){
   const keyRow=`<div class="cbkey">${s.used.map(ch=>`<div><b>${esc(lab(ch))}</b><i style="background:${CB_COLORS[ch][0]}"></i><span>${esc(CB_COLORS[ch][li])}</span></div>`).join('')}</div>`;
   return {pages:[head(val('cbTitle'),val('cbInstr'))+keyRow+grid(false)],keys:[keyHead(val('cbTitle'))+grid(true)],
     msg:`${s.used.length} colors.${s.mode!=='num'&&s.mode!=='abc'?' Press New layout for different problems.':''}`,ok:true};
+}
+
+/* ---------- color by number: your own picture ---------- */
+const CBKEY='puzzlemaker-cb';
+const CB={img:null,w:0,h:0,nums:[{c:'R'},{c:'B'},{c:'Y'}],active:0,labels:[],el:null};
+function saveCB(){try{localStorage.setItem(CBKEY,JSON.stringify({img:CB.img,w:CB.w,h:CB.h,nums:CB.nums,active:CB.active,labels:CB.labels}))}
+  catch(e){note('The picture is too big to remember after you close the page, but it works for now.')}}
+function loadCB(){try{const o=JSON.parse(localStorage.getItem(CBKEY)||'null');if(o)Object.assign(CB,o)}catch(e){}if(CB.img)cbLoadEl()}
+function cbLoadEl(){const im=new Image();im.onload=()=>{CB.el=im;cbKeyCache=null;if(type==='color')render()};im.src=CB.img}
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function cbVals(seed,mode,n){const r=mulberry(seed),sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  if(mode==='add')return sh([...Array(13).keys()].map(i=>i+6)).slice(0,n);
+  if(mode==='sub')return sh([...Array(12).keys()].map(i=>i+1)).slice(0,n);
+  if(mode==='mul')return sh(CB_MUL.slice()).slice(0,n);
+  return [...Array(n).keys()].map(i=>i+1)}
+function cbProb(seed,i,v,mode){const r=mulberry(seed+i*7919),R=k=>Math.floor(r()*k);
+  if(mode==='add'){const a=R(v+1);return `${a}+${v-a}`}
+  if(mode==='sub'){const b=1+R(9);return `${v+b}−${b}`}
+  if(mode==='mul'){const f=[];for(let a=2;a<v;a++)if(v%a===0)f.push(a);const a=f[R(f.length)];return `${a}×${v/a}`}
+  return null}
+let cbKeyCache=null;
+function cbKeyImage(){
+  const sig=JSON.stringify([CB.img&&CB.img.length,CB.w,CB.labels,CB.nums]);if(cbKeyCache&&cbKeyCache.sig===sig)return cbKeyCache.src;
+  if(!CB.el)return null;
+  const c=document.createElement('canvas');c.width=CB.w;c.height=CB.h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,CB.w,CB.h);x.drawImage(CB.el,0,0,CB.w,CB.h);
+  const im=x.getImageData(0,0,CB.w,CB.h),d=im.data,W=CB.w,H=CB.h,wall=new Uint8Array(W*H),done=new Uint8Array(W*H);
+  for(let i=0;i<W*H;i++)wall[i]=(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11)<150?1:0;
+  for(const l of CB.labels){const num=CB.nums[l.n];if(!num)continue;const hex=CB_COLORS[num.c][0],rr=parseInt(hex.slice(1,3),16),gg=parseInt(hex.slice(3,5),16),bb=parseInt(hex.slice(5,7),16);
+    let sx=Math.round(l.x*W),sy=Math.round(l.y*H),seed=-1;
+    for(let rad=0;rad<12&&seed<0;rad++)for(let dy=-rad;dy<=rad&&seed<0;dy++)for(let dx=-rad;dx<=rad&&seed<0;dx++){const px=sx+dx,py=sy+dy;if(px>=0&&py>=0&&px<W&&py<H&&!wall[py*W+px])seed=py*W+px}
+    if(seed<0||done[seed])continue;
+    const st=[seed];done[seed]=1;
+    while(st.length){const p=st.pop();d[p*4]=rr;d[p*4+1]=gg;d[p*4+2]=bb;const px=p%W;
+      if(px>0&&!wall[p-1]&&!done[p-1]){done[p-1]=1;st.push(p-1)}
+      if(px<W-1&&!wall[p+1]&&!done[p+1]){done[p+1]=1;st.push(p+1)}
+      if(p>=W&&!wall[p-W]&&!done[p-W]){done[p-W]=1;st.push(p-W)}
+      if(p<W*(H-1)&&!wall[p+W]&&!done[p+W]){done[p+W]=1;st.push(p+W)}}}
+  x.putImageData(im,0,0);
+  cbKeyCache={sig,src:c.toDataURL('image/png')};return cbKeyCache.src;
+}
+function viewCustom(s){
+  const mode=val('cbLabel');
+  if(!CB.img)return {pages:[head(val('cbTitle'),val('cbInstr'))+`<p class="empty">Upload a picture with the button on the left. Black lines on white work best.</p>`],keys:[],msg:'Upload a picture to start.',ok:false};
+  let W=640,H=Math.round(640*CB.h/CB.w);if(H>700){H=700;W=Math.round(700*CB.w/CB.h)}
+  const vals=cbVals(s.seed,mode,CB.nums.length),abc=L().dotsAlpha,li={he:1,yi:2,en:3}[lang];
+  const lab=k=>mode==='abc'?(abc[k]||String(k+1)):String(vals[k]);
+  const text=(l,i)=>{const p=cbProb(s.seed,i,vals[l.n],mode);return p||lab(l.n)};
+  const spans=CB.labels.map((l,i)=>CB.nums[l.n]?`<span data-i="${i}" style="left:${(l.x*100).toFixed(2)}%;top:${(l.y*100).toFixed(2)}%;font-size:${Math.round(l.s*W/640)}px">${esc(text(l,i))}</span>`:'').join('');
+  const keyRow=`<div class="cbkey">${CB.nums.map((nm,k)=>`<div><b>${esc(lab(k))}</b><i style="background:${CB_COLORS[nm.c][0]}"></i><span>${esc(CB_COLORS[nm.c][li])}</span></div>`).join('')}</div>`;
+  const box=(inner,cls)=>`<div class="center"><div class="${cls}" style="position:relative;width:${W}px;height:${H}px">${inner}</div></div>`;
+  const keySrc=cbKeyImage();
+  return {pages:[head(val('cbTitle'),val('cbInstr'))+keyRow+box(`<img alt="" src="${CB.img}" style="width:100%;height:100%;display:block">${spans}`,'cbcustom')],
+    keys:keySrc?[keyHead(val('cbTitle'))+box(`<img alt="" src="${keySrc}" style="width:100%;height:100%;display:block">`,'')]:[],
+    msg:`Click the picture to place ${esc(lab(CB.active))}. ${CB.labels.length} ${CB.labels.length===1?'number':'numbers'} placed.`,ok:true};
+}
+function cbPanel(){
+  const custom=val('cbPic')==='custom';
+  $('cbCustomBox').classList.toggle('hidden',!custom);$('cbBgRow').classList.toggle('hidden',custom);
+  const opts=Object.entries(CB_COLORS).filter(([k])=>k!=='.').map(([k,v])=>`<option value="${k}">${v[3]}</option>`).join('');
+  $('cbNums').innerHTML=CB.nums.map((nm,k)=>`<div class="cbnum"><button type="button" data-n="${k}" aria-pressed="${k===CB.active}">${k+1}</button><i style="background:${CB_COLORS[nm.c][0]}"></i><select data-n="${k}">${opts}</select></div>`).join('');
+  $('cbNums').querySelectorAll('select').forEach(sel=>{sel.value=CB.nums[+sel.dataset.n].c;sel.onchange=()=>{CB.nums[+sel.dataset.n].c=sel.value;saveCB();cbPanel();render()}});
+  $('cbNums').querySelectorAll('button').forEach(b=>b.onclick=()=>{CB.active=+b.dataset.n;saveCB();cbPanel();render()});
+  $('cbSizeVal').textContent=`(${$('cbSize').value})`;
+}
+function cbInit(){
+  loadCB();
+  $('cbFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1400/Math.max(im.width,im.height)),w=Math.round(im.width*k),h=Math.round(im.height*k);
+      const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(im,0,0,w,h);
+      let src=c.toDataURL('image/png');if(src.length>2.5e6)src=c.toDataURL('image/jpeg',0.9);
+      Object.assign(CB,{img:src,w,h,labels:[]});CB.el=null;cbKeyCache=null;saveCB();cbLoadEl();S.color=null;render()};im.src=r.result};
+    r.readAsDataURL(f);e.target.value=''};
+  $('cbAddNum').onclick=()=>{if(CB.nums.length>=11)return;const used=CB.nums.map(n=>n.c),next=Object.keys(CB_COLORS).find(k=>k!=='.'&&!used.includes(k))||'R';
+    CB.nums.push({c:next});CB.active=CB.nums.length-1;saveCB();cbPanel();render()};
+  $('cbDelNum').onclick=()=>{if(CB.nums.length<=1)return;const n=CB.nums.length-1;CB.nums.pop();CB.labels=CB.labels.filter(l=>l.n!==n);CB.active=Math.min(CB.active,CB.nums.length-1);saveCB();cbPanel();render()};
+  $('cbUndo').onclick=()=>{CB.labels.pop();saveCB();render()};
+  $('cbClear').onclick=()=>{if(CB.labels.length&&confirm('Take all the numbers off the picture?')){CB.labels=[];saveCB();render()}};
+  $('cbSize').oninput=()=>{$('cbSizeVal').textContent=`(${$('cbSize').value})`};
+  $('cbPic').addEventListener('change',cbPanel);
+  $('pages').addEventListener('click',e=>{
+    const box=e.target.closest('.cbcustom');if(!box||box.closest('.key'))return;
+    const sp=e.target.closest('span[data-i]');
+    if(sp){CB.labels.splice(+sp.dataset.i,1)}
+    else{const r=box.getBoundingClientRect();CB.labels.push({x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,n:CB.active,s:+$('cbSize').value})}
+    saveCB();render();
+  });
+  cbPanel();
 }
 
 /* ---------- connect the dots ---------- */
@@ -1025,6 +1132,7 @@ document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>setLang(b.data
 $('btnNew').onclick=rebuild;
 $('btnPrint').onclick=()=>window.print();
 fillShapes();load();putContent(perLang[lang]);applyLang();
+cbInit();
 setType(type);
 if(document.fonts){Promise.all([document.fonts.load('400 64px AlephScriptDotted','שלום'),document.fonts.load('400 64px Andika','Abc'),document.fonts.load('400 64px Heebo','שלום Abc')]).catch(()=>{}).then(()=>document.fonts.ready).then(()=>{if(type==='trace')render()})}
 
